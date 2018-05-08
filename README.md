@@ -3,7 +3,7 @@
                 Multithreaded batch image resize / copy / compress Android Java library , currently in beta phase
 
                 # Usage
-                // *Returns singleton instnace of the library 
+                // Returns singleton instance of the library 
                 Kompressor kompressor = Kompressor.get(); 
                 
                 // Assign a list of File object that need to either be moved or resized
