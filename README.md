@@ -1,5 +1,6 @@
-                # kompressor
-                Multithreaded batch image resize / copy / compress Android Java library
+                                        Kompressor Beta 0.1 
+                                  
+                Multithreaded batch image resize / copy / compress Android Java library , still in beta / incipient phase
 
                 # Usage
                 // *Returns singleton instnace of the library 
