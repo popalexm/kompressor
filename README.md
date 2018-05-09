@@ -19,5 +19,5 @@
                 
                 // * Assign a task type
                 kompressor.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
-                
-              ![Kompressor](https://user-images.githubusercontent.com/3145845/39837998-b5668d6a-53e0-11e8-87f4-6ec3622ed4e7.gif)
+              
+                ![](https://user-images.githubusercontent.com/3145845/39837998-b5668d6a-53e0-11e8-87f4-6ec3622ed4e7.gif)
