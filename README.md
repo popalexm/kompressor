@@ -20,4 +20,5 @@
                 // * Assign a task type
                 kompressor.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
               
+       
         
