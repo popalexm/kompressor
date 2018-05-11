@@ -16,8 +16,7 @@ public class ImageCopyAction {
     private String TAG = ImageResizeCompressAction.class.getSimpleName();
 
     public File copyFileToDirectory(@NonNull File sourceFile, @NonNull File destFile) throws IOException {
-        Log.d(TAG , "Starting to copy file - " + sourceFile.getName() + " to directory - "+ destFile.getName() + " , on thread " + Thread.currentThread().getName() + " at time : " + formatTimeHHmmSS(System.currentTimeMillis()));
-
+        Log.d(TAG , "Starting to copy file - " + sourceFile.getName() + " to directory - "+ destFile.getName() + " , on thread " + Thread.currentThread().getName() + " at : " + formatTimeHHmmSS(System.currentTimeMillis()));
         if (!destFile.getParentFile().exists())
             destFile.getParentFile().mkdirs();
         if (!destFile.exists()) {

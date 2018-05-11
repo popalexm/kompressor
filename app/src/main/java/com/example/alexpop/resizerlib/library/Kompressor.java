@@ -53,15 +53,15 @@ public class Kompressor {
         this.mImageListCopyCallbackListener = uiCallback;
     }
 
-    public void withSingleImageCopyCallback(@NonNull SingleImageCopyCallback singleImageCopyCallback) {
-        this.mSingleImageCopyListener = singleImageCopyCallback;
+    public void withSingleImageCopyCallback(@NonNull SingleImageCopyCallback uiCallback) {
+        this.mSingleImageCopyListener = uiCallback;
     }
 
-    public void withSingleImageResizeCallback(@NonNull SingleImageResizeCallback singleImageResizeCallback) {
-        this.mSingleImageResizeListener = singleImageResizeCallback;
+    public void withSingleImageResizeCallback(@NonNull SingleImageResizeCallback uiCallback) {
+        this.mSingleImageResizeListener = uiCallback;
     }
 
-    public void withMaxSize(int maximumSize) {
+    public void withMaxHeight(int maximumSize) {
         this.mMaxSize = maximumSize;
     }
 

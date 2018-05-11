@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ResizeDemo</string>
+    <string name="app_name">Kompressor</string>
     <string name="action_compress">Compress Pictures</string>
     <string name="action_delete">Delete Pictures</string>
     <string name="action_refresh">Resize Settings</string>

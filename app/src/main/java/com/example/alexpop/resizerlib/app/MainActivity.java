@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity
                 kompressor.withResizeCallback(this);
                 kompressor.withSingleImageResizeCallback(this);
                 kompressor.withCompressionRatio(mCompressionRatio);
-                kompressor.withMaxSize(mMaxResizeHeight);
+                kompressor.withMaxHeight(mMaxResizeHeight);
                 kompressor.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
             } else {
                 Toast.makeText(MainActivity.this , "No pictures found to compress !" , Toast.LENGTH_SHORT).show();
@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onImageListResizeStartedListener() {
-        Toast.makeText(MainActivity.this,   " Started to compress the images images have been compressed ", Toast.LENGTH_SHORT).show();
+       Log.d(TAG , "Starting to resize images");
     }
 
     @Override
@@ -272,9 +272,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onImageListResizeFailedListener(@NonNull List<File> failedToResizeFiles) {
-        Toast.makeText(MainActivity.this ,  "Processing of " + failedToResizeFiles.size() + " images has failed ", Toast.LENGTH_SHORT).show();
-    }
+    public void onImageListResizeFailedListener(@NonNull List<File> failedToResizeFiles) { }
 
     @Override
     public void onImageListCopyStartedListener() {
@@ -305,7 +303,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSingleImageCopyFailed(@NonNull File failedToCopyFile) {
-        mPhotosToolsAdapter.notifyDataSetChanged();
         Log.d(TAG , "Returned single image copy failed for " + failedToCopyFile.getName() );
     }
 

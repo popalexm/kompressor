@@ -44,11 +44,13 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
     private SingleImageCopyCallback mSingleImageCopyCallback;
     private SingleImageResizeCallback mSingleImageResizeCallback;
 
+    private ImageListMessageHandler mImageListMessageHandler;
+
     private TaskType mAssignedTaskType;
     private File mCopyDestinationDirectory;
 
-    MainListenerTaskCallable(@NonNull  List<File> imgsToProcess,
-                             @NonNull   TaskType assignedTaskType){
+    MainListenerTaskCallable(@NonNull List<File> imgsToProcess,
+                             @NonNull TaskType assignedTaskType){
         this.mQueueImageFiles = imgsToProcess;
         this.mAssignedTaskType = assignedTaskType;
     }
@@ -83,6 +85,9 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
 
     @Override
     public List<File> call() {
+        mImageListMessageHandler = ImageListMessageHandler.getInstance();
+        mExecutorService = ThreadPoolManager.getInstance().createWorkerExecutorService();
+
         switch (mAssignedTaskType) {
           case  TASK_RESIZE_AND_COMPRESS_TO_RATIO:
                 executeImageResizeTaskQueue();
@@ -97,38 +102,26 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
     }
 
     private void executeImageCopyTaskQueue() {
-        Log.d(TAG , "Preparing worker pool on thread + " + Thread.currentThread().getName());
-        ImageListMessageHandler imageListMessageHandler = ImageListMessageHandler.getInstance();
-        imageListMessageHandler.postCopyMessage(Message.PROCESSING_STARTED, mImageListCopyCallback, null, null);
-
-        mExecutorService = ThreadPoolManager.getInstance().createWorkerExecutorService();
+        mImageListMessageHandler.postCopyMessage(Message.PROCESSING_STARTED, mImageListCopyCallback, null, null);
         mRunningTasks = new ArrayList<>();
         for (int i = 0; i < mQueueImageFiles.size() ; i++  ) {
+            Log.d(TAG , "Submitting copy worker task to the thread pool");
             ImageCopyWorkerTask imageCopyWorkerTask = new ImageCopyWorkerTask(mQueueImageFiles.get(i), mCopyDestinationDirectory, mSingleImageCopyCallback);
             mRunningTasks.add(imageCopyWorkerTask);
-            mExecutorService.submit(imageCopyWorkerTask);
         }
-
-        mRunningTaskResults = returnWorkerTaskResults(mRunningTasks);
-        mExecutorService.shutdown();
+        awaitResults();
     }
 
     private void executeImageResizeTaskQueue() {
-        Log.d(TAG , "Preparing worker pool on thread + " + Thread.currentThread().getName());
-        ImageListMessageHandler imageListMessageHandler = ImageListMessageHandler.getInstance();
-        imageListMessageHandler.postResizeMessage(Message.PROCESSING_STARTED , mImageListResizeCallback, null, null);
-
-        mExecutorService= ThreadPoolManager.getInstance().createWorkerExecutorService();
-        mRunningTasks= new ArrayList<>();
+        mImageListMessageHandler.postResizeMessage(Message.PROCESSING_STARTED , mImageListResizeCallback, null, null);
+        mRunningTasks = new ArrayList<>();
         for (int i = 0; i < mQueueImageFiles.size() ; i++  ) {
+            Log.d(TAG , "Submitting resize worker task to the thread pool");
             String imgPath = mQueueImageFiles.get(i).getPath();
             ImageResizeWorkerTask imageResizeWorkerTask = new ImageResizeWorkerTask(imgPath , mMaximumResizeWidth, mCompressionRatio, mSingleImageResizeCallback);
             mRunningTasks.add(imageResizeWorkerTask);
-            mExecutorService.submit(imageResizeWorkerTask);
         }
-
-        mRunningTaskResults = returnWorkerTaskResults(mRunningTasks);
-        mExecutorService.shutdown();
+        awaitResults();
     }
 
     private void sortResults(@NonNull List<LinkedHashMap<File, Boolean>> fileProcessingResults, @NonNull TaskType assignedTaskType) {
@@ -163,25 +156,25 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
         }
     }
 
-    private List<LinkedHashMap<File, Boolean>> returnWorkerTaskResults(@NonNull List<WorkerTaskCallable> workerTaskCallableList) {
-        Log.d(TAG , "trying to call :invokeAll() and wait for worker pool responses on thread - " + Thread.currentThread().getName());
-        List<LinkedHashMap<File, Boolean>> compressedImages = new ArrayList<>();
+    private void awaitResults() {
+        Log.d(TAG , "trying to call :invokeAll() and awaiting for worker pool responses on thread - " + Thread.currentThread().getName());
         try{
-            List<Future<LinkedHashMap<File, Boolean>>> futures = mExecutorService.invokeAll(workerTaskCallableList);
+            List<Future<LinkedHashMap<File, Boolean>>> futures = mExecutorService.invokeAll(mRunningTasks);
+            mRunningTaskResults = new ArrayList<>();
             for(Future<LinkedHashMap<File, Boolean>> future : futures){
                 try{
-                    compressedImages.add(future.get());
+                    mRunningTaskResults.add(future.get());
                 }
                 catch (CancellationException | ExecutionException ce) {
                     ce.printStackTrace();
                 } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt(); // ignore/reset
+                    Thread.currentThread().interrupt();
                 }
             }
+            mExecutorService.shutdown();
         } catch(Exception err){
             err.printStackTrace();
         }
-        Log.d(TAG , " Worker thread pool returned - " + compressedImages.size() + " processed images");
-        return compressedImages;
+        Log.d(TAG , " Worker thread pool returned - " + mRunningTaskResults.size() + " done futures");
     }
 }
