@@ -44,9 +44,8 @@ public class PhotosRecyclerViewAdapter extends RecyclerView.Adapter<PhotosRecycl
     @Override
     public void onBindViewHolder(@NonNull PhotosViewHolder holder, int position) {
           File photoFile = mCurrentPhotos.get(holder.getAdapterPosition());
-           Glide.with(mContext)
-                    .load(photoFile) // Uri of the picture
-             .into(holder.mImgViewPhoto);
+          Glide.with(mContext).load(photoFile).into(holder.mImgViewPhoto);
+
           String sizeInMb = getStringSizeLengthFile(photoFile.length());
           holder.mTxtCurrentPhotoSize.setText(String.format("Current size : %s", sizeInMb));
     }

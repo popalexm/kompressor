@@ -17,7 +17,7 @@ import com.example.alexpop.resizerlib.library.threadmanager.ThreadPoolManager;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -37,7 +37,7 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
     private ExecutorService mExecutorService;
 
     private List<WorkerTaskCallable> mRunningTasks;
-    private List<LinkedHashMap<File, Boolean>> mRunningTaskResults;
+    private List<HashMap<File, Boolean>> mRunningTaskResults;
 
     private ImageListResizeCallback mImageListResizeCallback;
     private ImageListCopyCallback mImageListCopyCallback;
@@ -124,11 +124,11 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
         awaitResults();
     }
 
-    private void sortResults(@NonNull List<LinkedHashMap<File, Boolean>> fileProcessingResults, @NonNull TaskType assignedTaskType) {
+    private void sortResults(@NonNull List<HashMap<File, Boolean>> fileProcessingResults, @NonNull TaskType assignedTaskType) {
         ImageListMessageHandler imageListMessageHandler = ImageListMessageHandler.getInstance();
         List <File > success = new ArrayList<>();
         List <File> failed = new ArrayList<>();
-        for (LinkedHashMap<File, Boolean> fileProcessingResult : fileProcessingResults) {
+        for (HashMap<File, Boolean> fileProcessingResult : fileProcessingResults) {
             for (File imageFile : fileProcessingResult.keySet()) {
                 Boolean operationStatus = fileProcessingResult.get(imageFile);
                 if (!operationStatus) {
@@ -159,9 +159,9 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
     private void awaitResults() {
         Log.d(TAG , "trying to call :invokeAll() and awaiting for worker pool responses on thread - " + Thread.currentThread().getName());
         try{
-            List<Future<LinkedHashMap<File, Boolean>>> futures = mExecutorService.invokeAll(mRunningTasks);
+            List<Future<HashMap<File, Boolean>>> futures = mExecutorService.invokeAll(mRunningTasks);
             mRunningTaskResults = new ArrayList<>();
-            for(Future<LinkedHashMap<File, Boolean>> future : futures){
+            for(Future<HashMap<File, Boolean>> future : futures){
                 try{
                     mRunningTaskResults.add(future.get());
                 }
@@ -176,5 +176,6 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
             err.printStackTrace();
         }
         Log.d(TAG , " Worker thread pool returned - " + mRunningTaskResults.size() + " done futures");
+        TaskManager.isMainTaskThreadBusy.set(false);
     }
 }

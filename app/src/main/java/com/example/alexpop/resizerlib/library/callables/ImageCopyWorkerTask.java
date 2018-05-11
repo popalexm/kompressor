@@ -8,6 +8,7 @@ import com.example.alexpop.resizerlib.library.handlers.SingleImageMessageHandler
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class ImageCopyWorkerTask extends WorkerTaskCallable {
@@ -18,11 +19,11 @@ public class ImageCopyWorkerTask extends WorkerTaskCallable {
     private File mMediaStorageDirectory;
     private SingleImageCopyCallback mCopyStatusCallback;
     /*'
-     * The mCopyStatus LinkedHashMap contains  the file which has been successfully copied,
+     * The mCopyStatus HashMap contains  the file which has been successfully copied,
      * with a boolean value of true or, in case of an execution error,
-     * the file which failed and the boolean status false assigned to it
+     * the file which failed to copy, and the boolean status false assigned to it
      */
-    private LinkedHashMap<File, Boolean> mCopyOperationStatus;
+    private HashMap<File, Boolean> mCopyOperationStatus;
 
     public ImageCopyWorkerTask(@NonNull File toSaveContent , @NonNull File mediaStorageDirectory, @NonNull SingleImageCopyCallback copyStatusCallback){
         this.mToSaveContent = toSaveContent;
@@ -31,7 +32,7 @@ public class ImageCopyWorkerTask extends WorkerTaskCallable {
     }
 
     @Override
-    public LinkedHashMap<File, Boolean> call()  {
+    public HashMap<File, Boolean> call()  {
         mCopyOperationStatus = new LinkedHashMap<>();
         SingleImageMessageHandler mSingleImageMessageHandler = new SingleImageMessageHandler();
         try {

@@ -7,6 +7,7 @@ import com.example.alexpop.resizerlib.library.callbacks.SingleImageResizeCallbac
 import com.example.alexpop.resizerlib.library.handlers.SingleImageMessageHandler;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class ImageResizeWorkerTask extends WorkerTaskCallable {
@@ -16,8 +17,9 @@ public class ImageResizeWorkerTask extends WorkerTaskCallable {
     private String mImgPath;
     private int mMaximumWidth;
     private int mCompressionRatio;
+
     private SingleImageResizeCallback mSingleImageResizeCallback;
-    private LinkedHashMap<File, Boolean> mResizedFile;
+    private HashMap<File, Boolean> mResizedFileStatus;
 
     public ImageResizeWorkerTask(@NonNull String path, int maximumWidth, int compressionRatio, @NonNull SingleImageResizeCallback imageResizeCallback){
         this.mImgPath = path;
@@ -27,17 +29,17 @@ public class ImageResizeWorkerTask extends WorkerTaskCallable {
     }
 
     @Override
-    public LinkedHashMap<File, Boolean> call() {
-        mResizedFile = new LinkedHashMap<>();
+    public HashMap<File, Boolean> call() {
+        mResizedFileStatus = new LinkedHashMap<>();
         File file = new ImageResizeCompressAction().resizeAndCompressAtPath(mImgPath, mMaximumWidth, mCompressionRatio);
         SingleImageMessageHandler mSingleImageMessageHandler = new SingleImageMessageHandler();
         if (file != null) {
-            mResizedFile.put(file , true);
+            mResizedFileStatus.put(file , true);
             mSingleImageMessageHandler.sendResizeSuccessMessage(mSingleImageResizeCallback , file);
         } else {
-            mResizedFile.put(file , false);
+            mResizedFileStatus.put(file , false);
             mSingleImageMessageHandler.sendResizeFailed(mSingleImageResizeCallback , new File(mImgPath));
         }
-        return mResizedFile;
+        return mResizedFileStatus;
     }
 }

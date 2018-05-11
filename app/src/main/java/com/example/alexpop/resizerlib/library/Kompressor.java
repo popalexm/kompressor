@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.alexpop.resizerlib.library.callbacks.ImageListCopyCallback;
 import com.example.alexpop.resizerlib.library.callbacks.ImageListResizeCallback;
+import com.example.alexpop.resizerlib.library.callbacks.KompressorStatusCallback;
 import com.example.alexpop.resizerlib.library.callbacks.SingleImageCopyCallback;
 import com.example.alexpop.resizerlib.library.callbacks.SingleImageResizeCallback;
 import com.example.alexpop.resizerlib.library.definitions.TaskDetails;
@@ -31,10 +32,13 @@ public class Kompressor {
     }
 
     private ArrayList<File> mQueueImageFiles;
+
     private ImageListResizeCallback mImageListResizeCallbackListener;
     private ImageListCopyCallback mImageListCopyCallbackListener;
     private SingleImageCopyCallback mSingleImageCopyListener;
     private SingleImageResizeCallback mSingleImageResizeListener;
+    private KompressorStatusCallback mKompressorStatusListener;
+
     private TaskManager mTaskManager;
 
     private int mMaxSize = 0;
@@ -43,6 +47,18 @@ public class Kompressor {
 
     public void loadResources(@NonNull ArrayList<File> imagesToProcess) {
         mQueueImageFiles = imagesToProcess;
+    }
+
+    public void withMaxHeight(int maximumSize) {
+        this.mMaxSize = maximumSize;
+    }
+
+    public void withCompressionRatio(int compressionRatio) {
+        this.mCompressionRatio = compressionRatio;
+    }
+
+    public void toDestinationPath(@NonNull File destPath) {
+        this.mDestinationDirectory = destPath;
     }
 
     public void withResizeCallback(@NonNull ImageListResizeCallback uiCallback) {
@@ -61,16 +77,8 @@ public class Kompressor {
         this.mSingleImageResizeListener = uiCallback;
     }
 
-    public void withMaxHeight(int maximumSize) {
-        this.mMaxSize = maximumSize;
-    }
-
-    public void withCompressionRatio(int compressionRatio) {
-        this.mCompressionRatio = compressionRatio;
-    }
-
-    public void toDestinationPath(@NonNull File destPath) {
-        this.mDestinationDirectory = destPath;
+    public void withStatusCallback(@NonNull KompressorStatusCallback statusCallback){
+        this.mKompressorStatusListener = statusCallback;
     }
 
     public void startTask(@NonNull TaskType assignedTaskType) {
@@ -132,6 +140,9 @@ public class Kompressor {
         if (mSingleImageResizeListener != null) {
             mTaskManager.setSingleImageResizeCallback(mSingleImageResizeListener);
         }
+        if (mKompressorStatusListener != null) {
+            mTaskManager.setmKompressorStatusCallback(mKompressorStatusListener);
+        }
         mTaskManager.setTask(taskModel);
         mTaskManager.executeTask();
     }
@@ -144,6 +155,9 @@ public class Kompressor {
         }
         if (mSingleImageCopyListener != null) {
             mTaskManager.setSingleImageCopyCallback(mSingleImageCopyListener);
+        }
+        if (mKompressorStatusListener != null) {
+            mTaskManager.setmKompressorStatusCallback(mKompressorStatusListener);
         }
         mTaskManager.setTask(taskModel);
         mTaskManager.executeTask();

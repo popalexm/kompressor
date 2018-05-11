@@ -29,6 +29,7 @@ import com.example.alexpop.resizerlib.R;
 import com.example.alexpop.resizerlib.library.Kompressor;
 import com.example.alexpop.resizerlib.library.callbacks.ImageListCopyCallback;
 import com.example.alexpop.resizerlib.library.callbacks.ImageListResizeCallback;
+import com.example.alexpop.resizerlib.library.callbacks.KompressorStatusCallback;
 import com.example.alexpop.resizerlib.library.callbacks.SingleImageCopyCallback;
 import com.example.alexpop.resizerlib.library.callbacks.SingleImageResizeCallback;
 import com.example.alexpop.resizerlib.library.definitions.TaskType;
@@ -46,7 +47,8 @@ public class MainActivity extends AppCompatActivity
                                                 ImageListResizeCallback,
                                                 ImageListCopyCallback,
                                                 SingleImageCopyCallback,
-                                                SingleImageResizeCallback{
+                                                SingleImageResizeCallback,
+                                                KompressorStatusCallback{
 
     private String TAG = MainActivity.class.getSimpleName();
 
@@ -64,6 +66,8 @@ public class MainActivity extends AppCompatActivity
 
     private int mCompressionRatio = 70;
     private int mMaxResizeHeight = 960;
+
+    private Kompressor mKompressorInstance;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,10 +79,24 @@ public class MainActivity extends AppCompatActivity
         mLoadPictures = findViewById(R.id.fab_load_pictures);
         mLoadPictures.setOnClickListener(this);
         mSharedPreferences = getPreferences(Context.MODE_PRIVATE);
+        initLibrary();
 
         initCopyToMediaDirectory();
         requestStoragePermissions();
         initRecyclerView();
+    }
+
+    /**Kompressor library initialisation with callbacks for single and multiple image resize results
+     */
+    private void initLibrary(){
+        mKompressorInstance = Kompressor.get();
+
+        mKompressorInstance.withStatusCallback(this);
+
+        mKompressorInstance.withSingleImageCopyCallback(this);
+        mKompressorInstance.withCopyCallback(this);
+        mKompressorInstance.withResizeCallback(this);
+        mKompressorInstance.withSingleImageResizeCallback(this);
     }
 
     private void openFileExplorer() {
@@ -152,16 +170,15 @@ public class MainActivity extends AppCompatActivity
             mMaxResizeHeight = mSharedPreferences.getInt( "mMaxResizeHeight", 0);
             mCompressionRatio = mSharedPreferences.getInt("mCompressionRatio", 0);
             if (assignedFiles != null && assignedFiles.size() != 0) {
-                /**
-                   Kompressor library initialisation with callbacks for single and multiple image resize results
+
+                /** Assigning resources (images list)to the library and task parameters
                  */
-                Kompressor kompressor = Kompressor.get();
-                kompressor.loadResources(assignedFiles);
-                kompressor.withResizeCallback(this);
-                kompressor.withSingleImageResizeCallback(this);
-                kompressor.withCompressionRatio(mCompressionRatio);
-                kompressor.withMaxHeight(mMaxResizeHeight);
-                kompressor.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
+                mKompressorInstance.loadResources(assignedFiles);
+                mKompressorInstance.withCompressionRatio(mCompressionRatio);
+                mKompressorInstance.withMaxHeight(mMaxResizeHeight);
+                /**Assigning task type to the library
+                 */
+                mKompressorInstance.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
             } else {
                 Toast.makeText(MainActivity.this , "No pictures found to compress !" , Toast.LENGTH_SHORT).show();
             }
@@ -184,12 +201,13 @@ public class MainActivity extends AppCompatActivity
                             currentItem = currentItem + 1;
                         }
 
-                        Kompressor kompressor = Kompressor.get();
-                        kompressor.loadResources(pictureUris);
-                        kompressor.toDestinationPath(mMediaStorageDir);
-                        kompressor.withCopyCallback(this);
-                        kompressor.withSingleImageCopyCallback(this);
-                        kompressor.startTask(TaskType.TASK_MOVE_TO_DIRECTORY);
+                        /** Assigning resources (images list)to the library and task parameters
+                         */
+                        mKompressorInstance.loadResources(pictureUris);
+                        mKompressorInstance.toDestinationPath(mMediaStorageDir);
+                        /**Assigning task type to the library
+                         */
+                        mKompressorInstance.startTask(TaskType.TASK_MOVE_TO_DIRECTORY);
                     }
                 } else {
                 Toast.makeText(MainActivity.this,   "Please select multiple images", Toast.LENGTH_SHORT).show();
@@ -331,4 +349,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onButtonNegativeSelected() { }
+
+    @Override
+    public void onKompressorBusy() {
+        Toast.makeText(MainActivity.this , " Image processing is currently underway, cannot assign new tasks !", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onKompressorResourcesFree() {
+
+    }
 }

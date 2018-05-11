@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.alexpop.resizerlib.library.callbacks.ImageListCopyCallback;
 import com.example.alexpop.resizerlib.library.callbacks.ImageListResizeCallback;
+import com.example.alexpop.resizerlib.library.callbacks.KompressorStatusCallback;
 import com.example.alexpop.resizerlib.library.callbacks.SingleImageCopyCallback;
 import com.example.alexpop.resizerlib.library.callbacks.SingleImageResizeCallback;
 import com.example.alexpop.resizerlib.library.definitions.TaskDetails;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.example.alexpop.resizerlib.library.definitions.TaskType.TASK_COMPRESS_TO_RATIO;
 import static com.example.alexpop.resizerlib.library.definitions.TaskType.TASK_MOVE_TO_DIRECTORY;
@@ -36,13 +38,18 @@ public class TaskManager {
         return mInstance;
     }
 
-    private ExecutorService mMainExecutorThread;
     private TaskModel mTaskModel;
+
     private ImageListCopyCallback mImageListCopyCallback;
     private ImageListResizeCallback mImageListResizeCallback;
     private SingleImageCopyCallback mSingleImageCopyCallback;
     private SingleImageResizeCallback mSingleImageResizeCallback;
+    private KompressorStatusCallback mKompressorStatusCallback;
+
+    private ExecutorService mMainExecutorThread;
     private MainListenerTaskCallable mMainListenerTaskCallable;
+
+    public static AtomicBoolean isMainTaskThreadBusy = new AtomicBoolean();
 
     public void setImageListCopyCallback(@NonNull ImageListCopyCallback imageCopyStatusCallback) {
         this.mImageListCopyCallback = imageCopyStatusCallback;
@@ -60,6 +67,10 @@ public class TaskManager {
         this.mSingleImageResizeCallback = imageListResizeCallback;
     }
 
+    public void setmKompressorStatusCallback(KompressorStatusCallback mKompressorStatusCallback) {
+        this.mKompressorStatusCallback = mKompressorStatusCallback;
+    }
+
     public void setTask(@NonNull TaskModel mTaskModel) {
         this.mTaskModel = mTaskModel;
     }
@@ -67,44 +78,52 @@ public class TaskManager {
     public void executeTask() {
         if (mTaskModel != null) {
             mMainExecutorThread = ThreadPoolManager.getInstance().createMainExecutorService();
-            TaskDetails taskDetails = mTaskModel.getmTaskDetails();
-            List<File> queueImageFiles = mTaskModel.getmQueueImageFiles();
-            switch (mTaskModel.getmTaskType()) {
-                case TASK_MOVE_TO_DIRECTORY:
-                    if (taskDetails.getmDestinationPath() != null && mImageListCopyCallback != null ) {
-                           startImageCopy(queueImageFiles,
-                                          taskDetails.getmDestinationPath());
-                    } else {
-                        Log.e(TAG , "Operation " + TASK_MOVE_TO_DIRECTORY + " aborted , missing parameters");
-                    }
-                    break;
+            if (isMainTaskThreadBusy.get()) {
+                Log.w(TAG , "Main task listener thread is busy, cannot received new tasks yet, please wait for the current assigned ones to finish");
+                if (mKompressorStatusCallback != null) {
+                    mKompressorStatusCallback.onKompressorBusy();
+                }
+            } else {
+                TaskDetails taskDetails = mTaskModel.getmTaskDetails();
+                List<File> queueImageFiles = mTaskModel.getmQueueImageFiles();
 
-                case TASK_RESIZE:
-                    if (taskDetails.getmMaxSize() != 0 && mSingleImageResizeCallback != null) {
+                switch (mTaskModel.getmTaskType()) {
+                    case TASK_MOVE_TO_DIRECTORY:
+                        if (taskDetails.getmDestinationPath() != null && mImageListCopyCallback != null ) {
+                            startImageCopy(queueImageFiles,
+                                           taskDetails.getmDestinationPath());
+                        } else {
+                            Log.e(TAG , "Operation " + TASK_MOVE_TO_DIRECTORY + " aborted , missing parameters");
+                        }
+                        break;
+
+                    case TASK_RESIZE:
+                        if (taskDetails.getmMaxSize() != 0 && mSingleImageResizeCallback != null) {
                             startImageResize(queueImageFiles,
                                              taskDetails.getmMaxSize());
-                    } else {
-                        Log.e(TAG , "Operation " +TASK_RESIZE+ " aborted , missing parameters");
-                    }
-                    break;
+                        } else {
+                            Log.e(TAG , "Operation " +TASK_RESIZE+ " aborted , missing parameters");
+                        }
+                        break;
 
-                case TASK_RESIZE_AND_COMPRESS_TO_RATIO:
-                    if (mImageListCopyCallback != null && taskDetails.getmMaxSize() != 0 && taskDetails.getmCompressionRatio() != 0) {
-                        startImageResizeAndCompress(queueImageFiles,
-                                                    taskDetails.getmMaxSize(),
-                                                    taskDetails.getmCompressionRatio());
-                    } else {
-                        Log.e(TAG , "Operation " +TASK_RESIZE_AND_COMPRESS_TO_RATIO+ " aborted , missing parameters");
-                    }
-                    break;
-                case TASK_COMPRESS_TO_RATIO:
-                    if (taskDetails.getmCompressionRatio() != 0 && mImageListResizeCallback != null) {
-                         startImageCompress(queueImageFiles,
-                                            taskDetails.getmCompressionRatio());
-                    } else {
-                        Log.e(TAG , "Operation " + TASK_COMPRESS_TO_RATIO +" aborted , missing parameters");
-                    }
-                    break;
+                    case TASK_RESIZE_AND_COMPRESS_TO_RATIO:
+                        if (mImageListCopyCallback != null && taskDetails.getmMaxSize() != 0 && taskDetails.getmCompressionRatio() != 0) {
+                            startImageResizeAndCompress(queueImageFiles,
+                                                        taskDetails.getmMaxSize(),
+                                                        taskDetails.getmCompressionRatio());
+                        } else {
+                            Log.e(TAG , "Operation " +TASK_RESIZE_AND_COMPRESS_TO_RATIO+ " aborted , missing parameters");
+                        }
+                        break;
+                    case TASK_COMPRESS_TO_RATIO:
+                        if (taskDetails.getmCompressionRatio() != 0 && mImageListResizeCallback != null) {
+                            startImageCompress(queueImageFiles,
+                                               taskDetails.getmCompressionRatio());
+                        } else {
+                            Log.e(TAG , "Operation " + TASK_COMPRESS_TO_RATIO +" aborted , missing parameters");
+                        }
+                        break;
+                }
             }
         } else {
             Log.e(TAG, "mTaskModel is null , aborting");
@@ -119,6 +138,7 @@ public class TaskManager {
 
         assignResizeCallbacks();
         mMainExecutorThread.submit(mMainListenerTaskCallable);
+        isMainTaskThreadBusy.set(true);
     }
 
     private void startImageResize(@NonNull List<File> mQueueImageFiles, int maximumResizeWidth) {
@@ -128,6 +148,7 @@ public class TaskManager {
 
         assignResizeCallbacks();
         mMainExecutorThread.submit(mMainListenerTaskCallable);
+        isMainTaskThreadBusy.set(true);
     }
 
     private void startImageCompress(@NonNull List<File> mQueueImageFiles, int compressionRatio) {
@@ -137,6 +158,7 @@ public class TaskManager {
 
         assignResizeCallbacks();
         mMainExecutorThread.submit(mMainListenerTaskCallable);
+        isMainTaskThreadBusy.set(true);
     }
 
     private void startImageCopy(@NonNull List<File> mQueueImageFiles, @NonNull File destinationDirectory){
@@ -146,6 +168,7 @@ public class TaskManager {
 
         assignCopyCallbacks();
         mMainExecutorThread.submit(mMainListenerTaskCallable);
+        isMainTaskThreadBusy.set(true);
     }
 
     private void assignResizeCallbacks() {
