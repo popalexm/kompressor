@@ -1,6 +1,8 @@
                                         Kompressor Beta 0.1 
                                   
                 Multithreaded batch image resize / copy / compress Android Java library , currently in beta phase
+                  
+                ![alt-text](https://media.giphy.com/media/oOwpZgz8uVn3Q2ZkbO/giphy.gif)
 
                 # Usage
                 // Returns singleton instance of the library 
@@ -19,6 +21,8 @@
                 
                 // * Assign a task type
                 kompressor.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
+                
+                
               
        
         
