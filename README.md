@@ -2,7 +2,7 @@
                                   
                 Multithreaded batch image resize / copy / compress Android Java library , currently in beta phase
                   
-                ![alt-text](https://media.giphy.com/media/oOwpZgz8uVn3Q2ZkbO/giphy.gif)
+                ![preview](https://media.giphy.com/media/oOwpZgz8uVn3Q2ZkbO/giphy.gif)
 
                 # Usage
                 
