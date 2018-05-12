@@ -17,9 +17,9 @@
             kompressor.withResizeCallback(this);
             kompressor.withSingleImageResizeCallback(this);
             
-            # Assign a maximum height resolution or a maximum compression ratio (must be a compression ratio between 0-100)
-            kompressor.withCompressionRatio(mCompressionRatio);
-            kompressor.withMaxSize(mMaxResizeHeight);
+            # Assign a maximum height resolution (value expressed as an int variable, corresponding to the desired maximum height in pixels of the desired resulted images), or a maximum compression ratio (must be a compression ratio between 0-100, expressed as an int variable).
+            kompressor.withCompressionRatio(90);
+            kompressor.withMaxSize(720;
             
             # Start the task by calling the publi startTask method and assigining a TaskType, there are 4 currently available in the library     
             kompressor.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
