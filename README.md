@@ -1,9 +1,9 @@
 ![giphy](https://user-images.githubusercontent.com/3145845/39960197-0d88e4fa-5627-11e8-8c0a-ff8c9ecf289a.gif)
 
 
-                                Kompressor Beta 0.1 
+                                Kompressor Beta 0.2 
                               
-            Batch image resize / copy / compress / resize & compress Android Java library , currently in beta phase, designed for mass manipulation of an large number of image files
+            Batch image resize / copy / compress / resize & compress Android Java library , currently in beta phase, designed for mass manipulation of an large number of image files.
            
             # Usage
             
@@ -24,7 +24,8 @@
             # Start the task by calling the publi startTask method and assigining a TaskType, there are 4 currently available in the library     
             kompressor.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
 
-              
+            # Gradle import release 
+            Will be relased as a gradle package once it has been fully tested.
                 
                 
               
