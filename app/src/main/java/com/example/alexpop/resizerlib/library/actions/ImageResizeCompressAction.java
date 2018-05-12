@@ -25,8 +25,7 @@ public class ImageResizeCompressAction {
             BitmapFactory.decodeFile(imagePath, mBitmapOptions);
             int originalWidth = mBitmapOptions.outWidth;
             int originalHeight = mBitmapOptions.outHeight;
-            /** Calculating dimensions based on current image AR and maxWidth of the original image
-             */
+            /* Calculating dimensions based on current image AR and maxWidth of the original image */
             int targetWidth;
             int targetHeight;
             if(originalWidth > originalHeight){

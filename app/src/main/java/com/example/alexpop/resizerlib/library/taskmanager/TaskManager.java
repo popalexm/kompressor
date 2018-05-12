@@ -18,28 +18,30 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.example.alexpop.resizerlib.library.definitions.TaskType.TASK_COMPRESS_TO_RATIO;
+import static com.example.alexpop.resizerlib.library.definitions.TaskType.TASK_JUST_COMPRESS;
+import static com.example.alexpop.resizerlib.library.definitions.TaskType.TASK_JUST_RESIZE;
 import static com.example.alexpop.resizerlib.library.definitions.TaskType.TASK_MOVE_TO_DIRECTORY;
-import static com.example.alexpop.resizerlib.library.definitions.TaskType.TASK_RESIZE;
 import static com.example.alexpop.resizerlib.library.definitions.TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO;
 
 public class TaskManager {
 
     private String TAG =  TaskManager.class.getSimpleName();
 
-    private static TaskManager mInstance;
+    private static TaskManager sInstance;
 
     private TaskManager(){ }
 
     public static synchronized TaskManager getInstance (){
-        if(mInstance == null){
-            mInstance = new TaskManager();
+        if(sInstance == null){
+            sInstance = new TaskManager();
         }
-        return mInstance;
+        return sInstance;
     }
 
     private TaskModel mTaskModel;
 
+    /** Callbacks back to the main thread that is calling the library
+     */
     private ImageListCopyCallback mImageListCopyCallback;
     private ImageListResizeCallback mImageListResizeCallback;
     private SingleImageCopyCallback mSingleImageCopyCallback;
@@ -47,8 +49,15 @@ public class TaskManager {
     private KompressorStatusCallback mKompressorStatusCallback;
 
     private ExecutorService mMainExecutorThread;
+
+    /** Main callable that will be be listening for the worker pool thread results
+     */
     private MainListenerTaskCallable mMainListenerTaskCallable;
 
+    /** Task Manager status boolean,
+     * set to true when worker threads are busy processing files,
+     * else is set to false
+     */
     public static AtomicBoolean isMainTaskThreadBusy = new AtomicBoolean();
 
     public void setImageListCopyCallback(@NonNull ImageListCopyCallback imageCopyStatusCallback) {
@@ -97,12 +106,12 @@ public class TaskManager {
                         }
                         break;
 
-                    case TASK_RESIZE:
+                    case TASK_JUST_RESIZE:
                         if (taskDetails.getmMaxSize() != 0 && mSingleImageResizeCallback != null) {
                             startImageResize(queueImageFiles,
                                              taskDetails.getmMaxSize());
                         } else {
-                            Log.e(TAG , "Operation " +TASK_RESIZE+ " aborted , missing parameters");
+                            Log.e(TAG , "Operation " + TASK_JUST_RESIZE + " aborted , missing parameters");
                         }
                         break;
 
@@ -115,12 +124,12 @@ public class TaskManager {
                             Log.e(TAG , "Operation " +TASK_RESIZE_AND_COMPRESS_TO_RATIO+ " aborted , missing parameters");
                         }
                         break;
-                    case TASK_COMPRESS_TO_RATIO:
+                    case TASK_JUST_COMPRESS:
                         if (taskDetails.getmCompressionRatio() != 0 && mImageListResizeCallback != null) {
                             startImageCompress(queueImageFiles,
                                                taskDetails.getmCompressionRatio());
                         } else {
-                            Log.e(TAG , "Operation " + TASK_COMPRESS_TO_RATIO +" aborted , missing parameters");
+                            Log.e(TAG , "Operation " + TASK_JUST_COMPRESS +" aborted , missing parameters");
                         }
                         break;
                 }
@@ -171,11 +180,15 @@ public class TaskManager {
         isMainTaskThreadBusy.set(true);
     }
 
+    /**Assign callbacks in the case of an resize task
+     */
     private void assignResizeCallbacks() {
         mMainListenerTaskCallable.setmSingleImageResizeCallback(mSingleImageResizeCallback);
         mMainListenerTaskCallable.setmImageListResizeCallback(mImageListResizeCallback);
     }
 
+    /**Assign callbacks in the case of an copy task
+     */
     private void assignCopyCallbacks() {
         Log.d(TAG , "Assigning image copy callbacks for the executed tasks");
         mMainListenerTaskCallable.setmImageListCopyCallback(mImageListCopyCallback);

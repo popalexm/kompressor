@@ -19,22 +19,22 @@ public class ImageListMessageHandler {
 
     private String TAG = ImageListMessageHandler.class.getSimpleName();
 
-    private Handler mainHandler;
+    private Handler mMainHandler;
 
-    private static ImageListMessageHandler mInstance;
+    private static ImageListMessageHandler sInstance;
 
     public static synchronized ImageListMessageHandler getInstance(){
-        if(mInstance == null){
-            mInstance = new ImageListMessageHandler();
+        if(sInstance == null){
+            sInstance = new ImageListMessageHandler();
         }
-        return mInstance;
+        return sInstance;
     }
 
     public synchronized void postResizeMessage (@NonNull Message msg,
                                                 @NonNull ImageListResizeCallback imageListResizeCallback,
                                                 @Nullable List<File> successfulImages,
                                                 @Nullable List<File> failedImages){
-        mainHandler = new Handler(Looper.getMainLooper());
+        mMainHandler = new Handler(Looper.getMainLooper());
         Runnable mainThreadCallback = () -> {
             Log.d(TAG , "Posting " + msg.toString() + " on " + Thread.currentThread().getName());
             switch (msg) {
@@ -49,14 +49,14 @@ public class ImageListMessageHandler {
                      break;
             }
         };
-        mainHandler.post(mainThreadCallback);
+        mMainHandler.post(mainThreadCallback);
     }
 
     public synchronized void postCopyMessage (@NonNull Message msg,
                                               @NonNull ImageListCopyCallback imageListCopyCallback,
                                               @Nullable List<File> successfulImages,
                                               @Nullable List<File> failedImages){
-        mainHandler = new Handler(Looper.getMainLooper());
+        mMainHandler = new Handler(Looper.getMainLooper());
         Runnable mainThreadCallback = () -> {
             Log.d(TAG , "Posting " + msg.toString() + " on " + Thread.currentThread().getName());
             switch (msg) {
@@ -71,6 +71,6 @@ public class ImageListMessageHandler {
                     break;
             }
         };
-        mainHandler.post(mainThreadCallback);
+        mMainHandler.post(mainThreadCallback);
     }
 }

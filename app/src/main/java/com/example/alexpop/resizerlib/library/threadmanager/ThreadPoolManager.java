@@ -29,6 +29,9 @@ public class ThreadPoolManager {
         return mInstance;
     }
 
+    /** Returns an Executor Service instance
+     * with the number of available cores + 1 as a maximum number of threads / pool
+     */
     public ExecutorService createWorkerExecutorService() {
         int availableCpuCores = Runtime.getRuntime().availableProcessors();
         Log.i(TAG , "Found " + availableCpuCores + " available cpu cores for the thread pool");
@@ -44,6 +47,8 @@ public class ThreadPoolManager {
                 new LinkedBlockingQueue<>());
     }
 
+    /** Returns a single threaded executor service
+     */
     public ExecutorService createMainExecutorService() {
         Log.d(TAG , new Date() + " -> Creating main executor thread instance");
         return Executors.newSingleThreadExecutor();

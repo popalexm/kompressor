@@ -18,10 +18,11 @@ public class ImageCopyWorkerTask extends WorkerTaskCallable {
     private File mToSaveContent;
     private File mMediaStorageDirectory;
     private SingleImageCopyCallback mCopyStatusCallback;
-    /*'
-     * The mCopyStatus HashMap contains  the file which has been successfully copied,
-     * with a boolean value of true or, in case of an execution error,
-     * the file which failed to copy, and the boolean status false assigned to it
+
+    /**The mCopyStatus HashMap contains the destination file which has been successfully copied,
+     * with a boolean value of true or,
+     * in case of an execution error, the file which failed to copy,
+     * and the boolean status false assigned to it
      */
     private HashMap<File, Boolean> mCopyOperationStatus;
 

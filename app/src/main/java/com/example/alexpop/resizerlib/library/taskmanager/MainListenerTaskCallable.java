@@ -30,28 +30,47 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
 
     private String TAG = MainListenerTaskCallable.class.getSimpleName();
 
-    private int mCompressionRatio;
-    private int mMaximumResizeWidth;
+    /**
+      Assigned files to the processing queue
+     */
+    private List<File> mImageFiles;
 
-    private List<File> mQueueImageFiles;
-    private ExecutorService mExecutorService;
+    /**
+      Executor service with a pool of threads for the worker callables
+     */
+    private ExecutorService mWorkerThreadsExecutorService;
 
+    /** List of currently  assigned callables ,
+     * on the worker thread pool
+     */
     private List<WorkerTaskCallable> mRunningTasks;
+
+    /** List of results from the operations , with a boolean status in the hashMap,
+     * true for success, false for failed
+     */
     private List<HashMap<File, Boolean>> mRunningTaskResults;
 
+    /** Callbacks for the operations success / failure notification
+     */
     private ImageListResizeCallback mImageListResizeCallback;
     private ImageListCopyCallback mImageListCopyCallback;
     private SingleImageCopyCallback mSingleImageCopyCallback;
     private SingleImageResizeCallback mSingleImageResizeCallback;
 
+    /** Message handler, used to call back the UI thread with the results of the operation
+     */
     private ImageListMessageHandler mImageListMessageHandler;
 
+    /** Task parameters
+     */
     private TaskType mAssignedTaskType;
     private File mCopyDestinationDirectory;
+    private int mCompressionRatio;
+    private int mMaximumResizeWidth;
 
     MainListenerTaskCallable(@NonNull List<File> imgsToProcess,
                              @NonNull TaskType assignedTaskType){
-        this.mQueueImageFiles = imgsToProcess;
+        this.mImageFiles = imgsToProcess;
         this.mAssignedTaskType = assignedTaskType;
     }
 
@@ -86,7 +105,7 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
     @Override
     public List<File> call() {
         mImageListMessageHandler = ImageListMessageHandler.getInstance();
-        mExecutorService = ThreadPoolManager.getInstance().createWorkerExecutorService();
+        mWorkerThreadsExecutorService = ThreadPoolManager.getInstance().createWorkerExecutorService();
 
         switch (mAssignedTaskType) {
           case  TASK_RESIZE_AND_COMPRESS_TO_RATIO:
@@ -96,6 +115,14 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
            case TASK_MOVE_TO_DIRECTORY:
                 executeImageCopyTaskQueue();
                 break;
+
+            case TASK_JUST_RESIZE:
+                // TODO implement
+                break;
+
+            case TASK_JUST_COMPRESS:
+                // TODO implement
+                break;
         }
         sortResults(mRunningTaskResults , mAssignedTaskType);
         return null;
@@ -104,9 +131,9 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
     private void executeImageCopyTaskQueue() {
         mImageListMessageHandler.postCopyMessage(Message.PROCESSING_STARTED, mImageListCopyCallback, null, null);
         mRunningTasks = new ArrayList<>();
-        for (int i = 0; i < mQueueImageFiles.size() ; i++  ) {
+        for (int i = 0; i < mImageFiles.size() ; i++  ) {
             Log.d(TAG , "Submitting copy worker task to the thread pool");
-            ImageCopyWorkerTask imageCopyWorkerTask = new ImageCopyWorkerTask(mQueueImageFiles.get(i), mCopyDestinationDirectory, mSingleImageCopyCallback);
+            ImageCopyWorkerTask imageCopyWorkerTask = new ImageCopyWorkerTask(mImageFiles.get(i), mCopyDestinationDirectory, mSingleImageCopyCallback);
             mRunningTasks.add(imageCopyWorkerTask);
         }
         awaitResults();
@@ -115,15 +142,19 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
     private void executeImageResizeTaskQueue() {
         mImageListMessageHandler.postResizeMessage(Message.PROCESSING_STARTED , mImageListResizeCallback, null, null);
         mRunningTasks = new ArrayList<>();
-        for (int i = 0; i < mQueueImageFiles.size() ; i++  ) {
+        for (int i = 0; i < mImageFiles.size() ; i++  ) {
             Log.d(TAG , "Submitting resize worker task to the thread pool");
-            String imgPath = mQueueImageFiles.get(i).getPath();
+            String imgPath = mImageFiles.get(i).getPath();
             ImageResizeWorkerTask imageResizeWorkerTask = new ImageResizeWorkerTask(imgPath , mMaximumResizeWidth, mCompressionRatio, mSingleImageResizeCallback);
             mRunningTasks.add(imageResizeWorkerTask);
         }
         awaitResults();
     }
 
+    /** Sorts the results of the resize or copy operations,
+     *  and posts messages back to the main thread with the number of successfully copied / resized files,
+     *  or the failed ones
+     */
     private void sortResults(@NonNull List<HashMap<File, Boolean>> fileProcessingResults, @NonNull TaskType assignedTaskType) {
         ImageListMessageHandler imageListMessageHandler = ImageListMessageHandler.getInstance();
         List <File > success = new ArrayList<>();
@@ -155,11 +186,14 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
             }
         }
     }
-
+    /** Blocks the listener main callable thread using invokeAll()and waits until
+     *  all submitted task in the pool are done,
+     *  setting the TaskManager isBusy boolean to false upon completion
+     */
     private void awaitResults() {
         Log.d(TAG , "trying to call :invokeAll() and awaiting for worker pool responses on thread - " + Thread.currentThread().getName());
         try{
-            List<Future<HashMap<File, Boolean>>> futures = mExecutorService.invokeAll(mRunningTasks);
+            List<Future<HashMap<File, Boolean>>> futures = mWorkerThreadsExecutorService.invokeAll(mRunningTasks);
             mRunningTaskResults = new ArrayList<>();
             for(Future<HashMap<File, Boolean>> future : futures){
                 try{
@@ -171,7 +205,7 @@ public class MainListenerTaskCallable implements Callable<List<File>> {
                     Thread.currentThread().interrupt();
                 }
             }
-            mExecutorService.shutdown();
+            mWorkerThreadsExecutorService.shutdown();
         } catch(Exception err){
             err.printStackTrace();
         }

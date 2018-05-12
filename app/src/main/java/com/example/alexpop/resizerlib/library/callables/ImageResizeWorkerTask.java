@@ -19,6 +19,10 @@ public class ImageResizeWorkerTask extends WorkerTaskCallable {
     private int mCompressionRatio;
 
     private SingleImageResizeCallback mSingleImageResizeCallback;
+
+    /**The mResizeFileStatus HashMap contains the file which has been resized,
+     * with a boolean value of true is success, false if resizing failed due to an error
+     */
     private HashMap<File, Boolean> mResizedFileStatus;
 
     public ImageResizeWorkerTask(@NonNull String path, int maximumWidth, int compressionRatio, @NonNull SingleImageResizeCallback imageResizeCallback){

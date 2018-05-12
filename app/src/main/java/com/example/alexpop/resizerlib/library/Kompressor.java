@@ -8,6 +8,7 @@ import com.example.alexpop.resizerlib.library.callbacks.ImageListResizeCallback;
 import com.example.alexpop.resizerlib.library.callbacks.KompressorStatusCallback;
 import com.example.alexpop.resizerlib.library.callbacks.SingleImageCopyCallback;
 import com.example.alexpop.resizerlib.library.callbacks.SingleImageResizeCallback;
+import com.example.alexpop.resizerlib.library.definitions.Parameters;
 import com.example.alexpop.resizerlib.library.definitions.TaskDetails;
 import com.example.alexpop.resizerlib.library.definitions.TaskModel;
 import com.example.alexpop.resizerlib.library.definitions.TaskType;
@@ -20,19 +21,24 @@ public class Kompressor {
 
     private String TAG = Kompressor.class.getSimpleName();
 
-    private static Kompressor mInstance;
+    private static Kompressor sInstance;
 
     private Kompressor(){ }
 
+    /**
+      Returns main library instance
+     */
     public static synchronized Kompressor get(){
-        if(mInstance == null){
-            mInstance = new Kompressor();
+        if(sInstance == null){
+            sInstance = new Kompressor();
         }
-        return mInstance;
+        return sInstance;
     }
 
     private ArrayList<File> mQueueImageFiles;
 
+    /**Callbacks for image resize or copy tasks back to the UI / calling thread
+     */
     private ImageListResizeCallback mImageListResizeCallbackListener;
     private ImageListCopyCallback mImageListCopyCallbackListener;
     private SingleImageCopyCallback mSingleImageCopyListener;
@@ -45,21 +51,30 @@ public class Kompressor {
     private int mCompressionRatio = 0;
     private File mDestinationDirectory;
 
+    /** Assign a list of image files to be assigned to the processing queue
+     */
     public void loadResources(@NonNull ArrayList<File> imagesToProcess) {
         mQueueImageFiles = imagesToProcess;
     }
 
+    /** Assign a maximum height at this the image files should be resized
+     */
     public void withMaxHeight(int maximumSize) {
         this.mMaxSize = maximumSize;
     }
-
+    /** Assign a compression , valid values being between 0 and 100
+    */
     public void withCompressionRatio(int compressionRatio) {
         this.mCompressionRatio = compressionRatio;
     }
 
+    /** Assign a destination path to copy tasks
+     */
     public void toDestinationPath(@NonNull File destPath) {
         this.mDestinationDirectory = destPath;
     }
+
+    /** Assign callbacks back to the calling thread */
 
     public void withResizeCallback(@NonNull ImageListResizeCallback uiCallback) {
         this.mImageListResizeCallbackListener = uiCallback;
@@ -81,7 +96,10 @@ public class Kompressor {
         this.mKompressorStatusListener = statusCallback;
     }
 
-    public void startTask(@NonNull TaskType assignedTaskType) {
+    /** Verifies if the assigned task is valid or not , if a valid task is found, it is assigned to the task manager, else returns false
+      @return boolean
+     */
+    public boolean startTask(@NonNull TaskType assignedTaskType) {
         boolean foundValidAssignedTask = false;
         for (TaskType availableTasks : TaskType.values()) {
             if (assignedTaskType.name().equals(availableTasks.name())) {
@@ -97,8 +115,13 @@ public class Kompressor {
         if (!foundValidAssignedTask){
             Log.d(TAG , "Could not find any available task with this value, exiting with status code -1 ");
         }
+        return foundValidAssignedTask;
     }
 
+    /** Verifies if task parameters are assigned correctly,
+     *  creates a TaskDetails object and notifies the TaskManager class to start the assigned task
+     *  @param assignedTaskType task type
+     */
     private void createAndExecuteTask(@NonNull TaskType assignedTaskType) {
         TaskDetails taskDetails =  new TaskDetails();
         mTaskManager = TaskManager.getInstance();
@@ -107,10 +130,13 @@ public class Kompressor {
             case TASK_RESIZE_AND_COMPRESS_TO_RATIO:
                 if (mMaxSize > 0) {
                     if (mCompressionRatio > 0) {
-                        Log.d(TAG, "Setting maxSize to " + mMaxSize + " compression ratio" + mCompressionRatio);
-                        taskDetails.setmMaxSize(mMaxSize);
-                        taskDetails.setmCompressionRatio(mCompressionRatio);
-                        startStartResizeTask(taskDetails, assignedTaskType);
+                        if (mCompressionRatio > Parameters.MIN_COMPPRESSION_RATIO && mCompressionRatio <= Parameters.MAX_COMPPRESSION_RATIO) {
+                            taskDetails.setmMaxSize(mMaxSize);
+                            taskDetails.setmCompressionRatio(mCompressionRatio);
+                            startStartResizeTask(taskDetails, assignedTaskType);
+                        } else {
+                            Log.e(TAG,  mCompressionRatio + " has not been set between " + Parameters.MIN_COMPPRESSION_RATIO + " and " + Parameters.MAX_COMPPRESSION_RATIO);
+                        }
                     } else {
                         Log.e(TAG, "Invalid parameters, compression ratio has not been set !");
                     }
@@ -128,11 +154,23 @@ public class Kompressor {
                     Log.e(TAG, "Invalid task parameters , destination directory has not been set");
                 }
                 break;
+
+            case TASK_JUST_RESIZE:
+                // TODO Implement just just resize task functionality
+                break;
+
+            case TASK_JUST_COMPRESS:
+                // TODO Implement just just compress task functionality
+                break;
         }
     }
-
+    /**
+      Validates callbacks , starts a resize task for the assigned TaskDetails object
+     @param taskDetails task details object
+     @param taskType task type
+     */
     private void startStartResizeTask(@NonNull TaskDetails taskDetails, @NonNull TaskType taskType) {
-        TaskModel taskModel = new TaskModel(taskType , mQueueImageFiles, taskDetails);
+        TaskModel taskModel = new TaskModel(taskType, mQueueImageFiles, taskDetails);
         Log.d(TAG , "Setting task model " + taskModel.toString());
         if (mImageListResizeCallbackListener != null) {
             mTaskManager.setImageListResizeCallback(mImageListResizeCallbackListener);
@@ -146,7 +184,11 @@ public class Kompressor {
         mTaskManager.setTask(taskModel);
         mTaskManager.executeTask();
     }
-
+    /**
+     Validates callbacks , starts a resize task for the assigned TaskDetails object
+     @param taskDetails
+     @param taskType
+     */
     private void startStartCopyTask(@NonNull TaskDetails taskDetails, @NonNull TaskType taskType) {
         TaskModel taskModel = new TaskModel(taskType , mQueueImageFiles, taskDetails);
         Log.d(TAG , "Setting task model " + taskModel.toString());

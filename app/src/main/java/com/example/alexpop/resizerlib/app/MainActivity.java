@@ -55,6 +55,10 @@ public class MainActivity extends AppCompatActivity
     private static final int WRITE_STORAGE_PERMISSION_REQUEST_CODE = 55;
     private static final int REQUEST_LOCAL_STORAGE = 3;
 
+    private String COMPRESSION_RATIO_SHARED_PREF = "mCompressionRatio";
+    private String MAX_HEIGHT_SHRED_PREF = "mMaxResizeHeight";
+    private int DEFAULT_SHARED_PREFERENCES_VALUE = 0 ;
+
     @BindView(R.id.recycler_list_photos)
     RecyclerView mRecyclerViewPhotos;
     @BindView(R.id.fab_load_pictures)
@@ -68,7 +72,7 @@ public class MainActivity extends AppCompatActivity
     private int mMaxResizeHeight = 960;
 
     private Kompressor mKompressorInstance;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +90,8 @@ public class MainActivity extends AppCompatActivity
         initRecyclerView();
     }
 
-    /**Kompressor library initialisation with callbacks for single and multiple image resize results
+    /**Kompressor library initialisation with callbacks,
+     *  for single and multiple image resize results
      */
     private void initLibrary(){
         mKompressorInstance = Kompressor.get();
@@ -158,8 +163,8 @@ public class MainActivity extends AppCompatActivity
             initRecyclerView();
         }
         if (id == R.id.action_set_attributes) {
-            mMaxResizeHeight = mSharedPreferences.getInt( "mMaxResizeHeight", 0);
-            mCompressionRatio = mSharedPreferences.getInt("mCompressionRatio", 0);
+            mMaxResizeHeight = mSharedPreferences.getInt(MAX_HEIGHT_SHRED_PREF, DEFAULT_SHARED_PREFERENCES_VALUE);
+            mCompressionRatio = mSharedPreferences.getInt(COMPRESSION_RATIO_SHARED_PREF, DEFAULT_SHARED_PREFERENCES_VALUE);
             new ResizeSettingsAlertDialog(MainActivity.this, this, mCompressionRatio , mMaxResizeHeight);
         }
         return super.onOptionsItemSelected(item);
@@ -167,18 +172,20 @@ public class MainActivity extends AppCompatActivity
 
     private void startCompression() {
         ArrayList<File> assignedFiles = getAllImages(mMediaStorageDir);
-            mMaxResizeHeight = mSharedPreferences.getInt( "mMaxResizeHeight", 0);
-            mCompressionRatio = mSharedPreferences.getInt("mCompressionRatio", 0);
+        mMaxResizeHeight = mSharedPreferences.getInt(MAX_HEIGHT_SHRED_PREF, DEFAULT_SHARED_PREFERENCES_VALUE);
+        mCompressionRatio = mSharedPreferences.getInt(COMPRESSION_RATIO_SHARED_PREF, DEFAULT_SHARED_PREFERENCES_VALUE);
             if (assignedFiles != null && assignedFiles.size() != 0) {
-
-                /** Assigning resources (images list)to the library and task parameters
-                 */
-                mKompressorInstance.loadResources(assignedFiles);
-                mKompressorInstance.withCompressionRatio(mCompressionRatio);
-                mKompressorInstance.withMaxHeight(mMaxResizeHeight);
-                /**Assigning task type to the library
-                 */
-                mKompressorInstance.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
+                if (mCompressionRatio > 0 && mMaxResizeHeight > 0) {
+                    /* Assigning resources (images list)to the library and task parameters*/
+                    mKompressorInstance.loadResources(assignedFiles);
+                 //   Log.d(TAG , "Setting compression ratio to  " -> );
+                    mKompressorInstance.withCompressionRatio(mCompressionRatio);
+                    mKompressorInstance.withMaxHeight(mMaxResizeHeight);
+                    /*Assigning task type to the library*/
+                    mKompressorInstance.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
+                } else {
+                    Toast.makeText(MainActivity.this , "Please go to the settings icon and set compression and max height ratio!" , Toast.LENGTH_SHORT).show();
+                }
             } else {
                 Toast.makeText(MainActivity.this , "No pictures found to compress !" , Toast.LENGTH_SHORT).show();
             }
@@ -200,7 +207,6 @@ public class MainActivity extends AppCompatActivity
                             pictureUris.add(new File (Uri.parse(uri).getPath()));
                             currentItem = currentItem + 1;
                         }
-
                         /** Assigning resources (images list)to the library and task parameters
                          */
                         mKompressorInstance.loadResources(pictureUris);
@@ -242,7 +248,7 @@ public class MainActivity extends AppCompatActivity
             return imgList;
     }
 
-    private void clearPictures(File directory) {
+    private void clearPictures(@NonNull File directory) {
         File[] f = directory.listFiles();
         for (File file : f) {
             if (file != null) {
@@ -252,8 +258,8 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
-    public  String getPathFromUri( Uri uri){
+    @NonNull
+    public String getPathFromUri(@NonNull Uri uri){
         String filePath = "";
         String wholeID = DocumentsContract.getDocumentId(uri);
         // Split at colon, use second item in the array
@@ -285,8 +291,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onImageListResizeSuccessListener(@NonNull List<File> resizedFiles) {
-        Toast.makeText(MainActivity.this ,  resizedFiles.size() + " images have been compressed ", Toast.LENGTH_SHORT).show();
+    public void onImageListResizeSuccessListener(@NonNull List<File> successfullyResizedFiles) {
+        Toast.makeText(MainActivity.this ,  successfullyResizedFiles.size() + " images have been compressed ", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -336,14 +342,13 @@ public class MainActivity extends AppCompatActivity
         Log.e(TAG , "Failed to resize image" + failedToResizeImage.getName() );
     }
 
-
     @Override
     public void onButtonOkSelected(int compressionRatio, int maxHeight) {
         mMaxResizeHeight = maxHeight;
         mCompressionRatio = compressionRatio;
         SharedPreferences.Editor editor = mSharedPreferences.edit();
-        editor.putInt("mMaxResizeHeight", mMaxResizeHeight);
-        editor.putInt("mCompressionRatio", mCompressionRatio);
+        editor.putInt(MAX_HEIGHT_SHRED_PREF, mMaxResizeHeight);
+        editor.putInt(COMPRESSION_RATIO_SHARED_PREF, mCompressionRatio);
         editor.apply();
     }
 
@@ -356,7 +361,5 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onKompressorResourcesFree() {
-
-    }
+    public void onKompressorResourcesFree() { }
 }
