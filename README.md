@@ -3,30 +3,25 @@
 
                                 Kompressor Beta 0.1 
                               
-            Multithreaded batch image resize / copy / compress Android Java library , currently in beta phase
+            Batch image resize / copy / compress / resize & compress Android Java library , currently in beta phase, designed for mass manipulation of an large number of image files
            
             # Usage
             
-            Returns singleton instance of the library 
+            # Returns singleton instance of the library.
             Kompressor kompressor = Kompressor.get(); 
             
-            Assign a list of images (File objects) that need to either be moved, or resized
+            # Assign a list of images (File objects) that need to either be moved, or resized.
+            kompressor.loadResources(List<File> imgFiles); 
             
-            kompressor.loadResources(List<File> files); 
-            
-            Assign callbacks for either the final image list results (the library returns a list of File objects for both                             succesfully copied/ resized / compresssed images, and the failed one) 
-            or single image copy / resize / compression callbacks for each image as it is processed
-            
+            # Assign callbacks for either the final image list results (the library returns a list of File objects for both                             succesfully copied/ resized / compresssed images, and the failed one) or single image copy / resize / compression callbacks for each image as it is processed.
             kompressor.withResizeCallback(this);
             kompressor.withSingleImageResizeCallback(this);
             
-            Assign a maximum height resolution or a maximum compression ratio (0-100)
-            
+            # Assign a maximum height resolution or a maximum compression ratio (must be a compression ratio between 0-100)
             kompressor.withCompressionRatio(mCompressionRatio);
             kompressor.withMaxSize(mMaxResizeHeight);
             
-            Assign a task type and start the task
-            
+            # Start the task by calling the publi startTask method and assigining a TaskType, there are 4 currently available in the library     
             kompressor.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
 
               
