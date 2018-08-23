@@ -4,14 +4,14 @@ import android.support.annotation.NonNull;
 
 import java.io.File;
 
-public interface SingleImageCopyCallback {
+public interface IndividualItemCopyCallback {
 
     /** Called once a file has been successfully copied
      */
-    void onSingleImageCopySuccess(@NonNull File copiedFile);
+    void onIndividualItemCopySuccess(@NonNull File copiedFile);
 
     /** Called once a file has failed to copy
      */
-    void onSingleImageCopyFailed(@NonNull File failedToCopyFile);
+    void onIndividualItemCopyFailed(@NonNull File failedToCopyFile);
 
 }

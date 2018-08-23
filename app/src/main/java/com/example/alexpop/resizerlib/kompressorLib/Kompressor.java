@@ -1,9 +1,9 @@
 package com.example.alexpop.resizerlib.kompressorLib;
 
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.ImageListCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.ImageListResizeCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.SingleImageCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.SingleImageResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchCopyCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemCopyCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemResizeCallback;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.CompressionParameters;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.TaskType;
 import com.example.alexpop.resizerlib.kompressorLib.taskmanager.TaskManager;
@@ -18,10 +18,10 @@ public final class Kompressor {
     /**
      * Callbacks for image resize or copy tasks back to the UI / calling thread
      */
-    private ImageListResizeCallback imageListResizeCallback;
-    private ImageListCopyCallback imageListCopyCallback;
-    private SingleImageCopyCallback singleImageCopyCallback;
-    private SingleImageResizeCallback singleImageResizeCallback;
+    private EntireBatchResizeCallback entireBatchResizeCallback;
+    private EntireBatchCopyCallback entireBatchCopyCallback;
+    private IndividualItemCopyCallback singleImageCopyCallback;
+    private IndividualItemResizeCallback individualItemResizeCallback;
 
     private Kompressor() {
     }
@@ -40,20 +40,20 @@ public final class Kompressor {
      * Assign callbacks back to the calling thread
      */
 
-    public void withResizeCallback(@NonNull ImageListResizeCallback uiCallback) {
-        this.imageListResizeCallback = uiCallback;
+    public void withResizeCallback(@NonNull EntireBatchResizeCallback uiCallback) {
+        this.entireBatchResizeCallback = uiCallback;
     }
 
-    public void withCopyCallback(@NonNull ImageListCopyCallback uiCallback) {
-        this.imageListCopyCallback = uiCallback;
+    public void withCopyCallback(@NonNull EntireBatchCopyCallback uiCallback) {
+        this.entireBatchCopyCallback = uiCallback;
     }
 
-    public void withSingleImageCopyCallback(@NonNull SingleImageCopyCallback uiCallback) {
+    public void withSingleImageCopyCallback(@NonNull IndividualItemCopyCallback uiCallback) {
         this.singleImageCopyCallback = uiCallback;
     }
 
-    public void withSingleImageResizeCallback(@NonNull SingleImageResizeCallback uiCallback) {
-        this.singleImageResizeCallback = uiCallback;
+    public void withSingleImageResizeCallback(@NonNull IndividualItemResizeCallback uiCallback) {
+        this.individualItemResizeCallback = uiCallback;
     }
 
     /**
@@ -108,11 +108,11 @@ public final class Kompressor {
      * Validates callbacks , starts a resize task for the assigned TaskDetails object
      */
     private void startStartResizeTask(@NonNull KompressorParameters parameters, @NonNull TaskManager taskManager) {
-        if (imageListResizeCallback != null) {
-            taskManager.setImageListResizeCallback(imageListResizeCallback);
+        if (entireBatchResizeCallback != null) {
+            taskManager.setImageListResizeCallback(entireBatchResizeCallback);
         }
-        if (singleImageResizeCallback != null) {
-            taskManager.setSingleImageResizeCallback(singleImageResizeCallback);
+        if (individualItemResizeCallback != null) {
+            taskManager.setSingleImageResizeCallback(individualItemResizeCallback);
         }
         taskManager.setTaskParameters(parameters);
         taskManager.executeTask();
@@ -122,8 +122,8 @@ public final class Kompressor {
      * Validates callbacks , starts a resize task for the assigned TaskDetails object
      */
     private void startStartCopyTask(@NonNull KompressorParameters parameters, @NonNull TaskManager taskManager) {
-        if (imageListCopyCallback != null) {
-            taskManager.setImageListCopyCallback(imageListCopyCallback);
+        if (entireBatchCopyCallback != null) {
+            taskManager.setImageListCopyCallback(entireBatchCopyCallback);
         }
         if (singleImageCopyCallback != null) {
             taskManager.setSingleImageCopyCallback(singleImageCopyCallback);

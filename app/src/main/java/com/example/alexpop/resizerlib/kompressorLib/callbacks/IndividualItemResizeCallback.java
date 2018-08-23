@@ -4,14 +4,14 @@ import android.support.annotation.NonNull;
 
 import java.io.File;
 
-public interface SingleImageResizeCallback {
+public interface IndividualItemResizeCallback {
 
     /** Called once a file has been successfully resized
      */
-    void onSingleImageResizeSuccess(@NonNull File resizedImage);
+    void onIndividualItemResizeSuccess(@NonNull File resizedImage);
 
     /** Called once a file has been successfully resized
      */
-    void onSingleImageResizeFailed(@NonNull File failedToResizeImage);
+    void onIndividualItemResizeFailed(@NonNull File failedToResizeImage);
 
 }

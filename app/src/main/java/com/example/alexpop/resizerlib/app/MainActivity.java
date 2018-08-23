@@ -2,10 +2,10 @@ package com.example.alexpop.resizerlib.app;
 
 import com.example.alexpop.resizerlib.R;
 import com.example.alexpop.resizerlib.kompressorLib.Kompressor;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.ImageListCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.ImageListResizeCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.SingleImageCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.SingleImageResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchCopyCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemCopyCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemResizeCallback;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.TaskType;
 import com.example.alexpop.resizerlib.kompressorLib.tasks.KompressorParameters;
 
@@ -40,11 +40,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
-                                     implements View.OnClickListener,
-                                                SettingsCallback,
-                                                ImageListResizeCallback,
-                                                ImageListCopyCallback,
-                                                SingleImageCopyCallback, SingleImageResizeCallback {
+                                     implements View.OnClickListener, SettingsCallback, EntireBatchResizeCallback, EntireBatchCopyCallback,
+        IndividualItemCopyCallback, IndividualItemResizeCallback {
 
     private String TAG = MainActivity.class.getSimpleName();
 
@@ -287,25 +284,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onImageListResizeStartedListener() {
+    public void onBatchResizeStartedListener() {
        Log.d(TAG , "Starting to resize images");
     }
 
     @Override
-    public void onImageListResizeSuccessListener(@NonNull List<File> successfullyResizedFiles) {
+    public void onBatchResizeSuccessListener(@NonNull List<File> successfullyResizedFiles) {
         Toast.makeText(MainActivity.this ,  successfullyResizedFiles.size() + " images have been compressed ", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onImageListResizeFailedListener(@NonNull List<File> failedToResizeFiles) { }
+    public void onBatchResizeFailedListener(@NonNull List<File> failedToResizeFiles) {
+    }
 
     @Override
-    public void onImageListCopyStartedListener() {
+    public void onBatchCopyStartedListener() {
         Toast.makeText(MainActivity.this , "Started to copy images !", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onImageListCopySuccessListener(@NonNull List<File> copiedSuccessfully) {
+    public void onBatchCopySuccessListener(@NonNull List<File> copiedSuccessfully) {
         Log.d(TAG , "Copied " + copiedSuccessfully.size() + " images successfully");
         if (copiedSuccessfully.size() > 0) {
             Toast.makeText(MainActivity.this , "Copied " + copiedSuccessfully.size() + " images to the destination directory !", Toast.LENGTH_SHORT).show();
@@ -313,7 +311,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onImageListFailedListener(@NonNull List<File> failedToCopy) {
+    public void onBatchFailedListener(@NonNull List<File> failedToCopy) {
         Log.d(TAG , "Failed to copy " + failedToCopy.size() + " images");
         if (failedToCopy.size() > 0) {
             Toast.makeText(MainActivity.this , "Failed to copy " + failedToCopy.size() + " images !", Toast.LENGTH_SHORT).show();
@@ -321,24 +319,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSingleImageCopySuccess(@NonNull File copiedFile) {
+    public void onIndividualItemCopySuccess(@NonNull File copiedFile) {
         mPhotosToolsAdapter.addPhotoToAdapter(copiedFile);
         mPhotosToolsAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void onSingleImageCopyFailed(@NonNull File failedToCopyFile) {
+    public void onIndividualItemCopyFailed(@NonNull File failedToCopyFile) {
         Log.d(TAG , "Returned single image copy failed for " + failedToCopyFile.getName() );
     }
 
     @Override
-    public void onSingleImageResizeSuccess(@NonNull File resizedImage) {
+    public void onIndividualItemResizeSuccess(@NonNull File resizedImage) {
         mPhotosToolsAdapter.notifyDataSetChanged();
         Log.d(TAG , " Returned resize success for " + resizedImage.getName());
     }
 
     @Override
-    public void onSingleImageResizeFailed(@NonNull File failedToResizeImage) {
+    public void onIndividualItemResizeFailed(@NonNull File failedToResizeImage) {
         mPhotosToolsAdapter.notifyDataSetChanged();
         Log.e(TAG , "Failed to resize image" + failedToResizeImage.getName() );
     }

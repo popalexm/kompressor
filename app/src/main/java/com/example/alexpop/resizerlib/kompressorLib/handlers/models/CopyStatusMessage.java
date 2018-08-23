@@ -1,6 +1,6 @@
 package com.example.alexpop.resizerlib.kompressorLib.handlers.models;
 
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.ImageListCopyCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchCopyCallback;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.ProcessingStatus;
 
 import android.support.annotation.NonNull;
@@ -13,13 +13,13 @@ public final class CopyStatusMessage {
     @NonNull
     private final ProcessingStatus status;
     @NonNull
-    private final ImageListCopyCallback callback;
+    private final EntireBatchCopyCallback callback;
     @NonNull
     private final List<File> successfulImages;
     @NonNull
     private final List<File> failedImages;
 
-    private CopyStatusMessage(@NonNull ProcessingStatus status, @NonNull ImageListCopyCallback callback, @NonNull List<File> successfulImages,
+    private CopyStatusMessage(@NonNull ProcessingStatus status, @NonNull EntireBatchCopyCallback callback, @NonNull List<File> successfulImages,
             @NonNull List<File> failedImages) {
         this.status = status;
         this.callback = callback;
@@ -33,7 +33,7 @@ public final class CopyStatusMessage {
     }
 
     @NonNull
-    public ImageListCopyCallback getCallback() {
+    public EntireBatchCopyCallback getCallback() {
         return callback;
     }
 
@@ -50,7 +50,7 @@ public final class CopyStatusMessage {
     public static class CopyMessageBuilder {
 
         private ProcessingStatus status;
-        private ImageListCopyCallback callback;
+        private EntireBatchCopyCallback callback;
         private List<File> successfulImages;
         private List<File> failedImages;
 
@@ -59,7 +59,7 @@ public final class CopyStatusMessage {
             return this;
         }
 
-        public CopyMessageBuilder setCallback(ImageListCopyCallback callback) {
+        public CopyMessageBuilder setCallback(EntireBatchCopyCallback callback) {
             this.callback = callback;
             return this;
         }

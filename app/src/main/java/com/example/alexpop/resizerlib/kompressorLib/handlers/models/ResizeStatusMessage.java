@@ -1,6 +1,6 @@
 package com.example.alexpop.resizerlib.kompressorLib.handlers.models;
 
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.ImageListResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeCallback;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.ProcessingStatus;
 
 import android.support.annotation.NonNull;
@@ -13,13 +13,13 @@ public final class ResizeStatusMessage {
     @NonNull
     private final ProcessingStatus status;
     @NonNull
-    private final ImageListResizeCallback callback;
+    private final EntireBatchResizeCallback callback;
     @NonNull
     private final List<File> successfulImages;
     @NonNull
     private final List<File> failedImages;
 
-    private ResizeStatusMessage(@NonNull ProcessingStatus status, @NonNull ImageListResizeCallback callback, @NonNull List<File> successfulImages,
+    private ResizeStatusMessage(@NonNull ProcessingStatus status, @NonNull EntireBatchResizeCallback callback, @NonNull List<File> successfulImages,
             @NonNull List<File> failedImages) {
         this.status = status;
         this.callback = callback;
@@ -33,7 +33,7 @@ public final class ResizeStatusMessage {
     }
 
     @NonNull
-    public ImageListResizeCallback getCallback() {
+    public EntireBatchResizeCallback getCallback() {
         return callback;
     }
 
@@ -50,7 +50,7 @@ public final class ResizeStatusMessage {
     public static class ResizeMessageBuilder {
 
         private ProcessingStatus status;
-        private ImageListResizeCallback callback;
+        private EntireBatchResizeCallback callback;
         private List<File> successfulImages;
         private List<File> failedImages;
 
@@ -59,7 +59,7 @@ public final class ResizeStatusMessage {
             return this;
         }
 
-        public ResizeMessageBuilder setCallback(ImageListResizeCallback callback) {
+        public ResizeMessageBuilder setCallback(EntireBatchResizeCallback callback) {
             this.callback = callback;
             return this;
         }

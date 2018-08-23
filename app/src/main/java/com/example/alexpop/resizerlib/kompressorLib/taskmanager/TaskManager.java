@@ -1,9 +1,9 @@
 package com.example.alexpop.resizerlib.kompressorLib.taskmanager;
 
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.ImageListCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.ImageListResizeCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.SingleImageCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.SingleImageResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchCopyCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemCopyCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemResizeCallback;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.TaskType;
 import com.example.alexpop.resizerlib.kompressorLib.tasks.KompressorParameters;
 import com.example.alexpop.resizerlib.kompressorLib.tasks.MainTaskCallable;
@@ -33,10 +33,10 @@ public final class TaskManager {
     /**
      * Callbacks back to the main thread that is calling the library
      */
-    private ImageListCopyCallback mImageListCopyCallback;
-    private ImageListResizeCallback mImageListResizeCallback;
-    private SingleImageCopyCallback mSingleImageCopyCallback;
-    private SingleImageResizeCallback mSingleImageResizeCallback;
+    private EntireBatchCopyCallback mEntireBatchCopyCallback;
+    private EntireBatchResizeCallback mEntireBatchResizeCallback;
+    private IndividualItemCopyCallback mIndividualItemCopyCallback;
+    private IndividualItemResizeCallback mIndividualItemResizeCallback;
     private ExecutorService mMainExecutorThread;
 
     private TaskManager() {
@@ -49,20 +49,20 @@ public final class TaskManager {
         return TaskManager.instance;
     }
 
-    public void setImageListCopyCallback(@NonNull ImageListCopyCallback imageCopyStatusCallback) {
-        this.mImageListCopyCallback = imageCopyStatusCallback;
+    public void setImageListCopyCallback(@NonNull EntireBatchCopyCallback imageCopyStatusCallback) {
+        this.mEntireBatchCopyCallback = imageCopyStatusCallback;
     }
 
-    public void setSingleImageCopyCallback(@NonNull SingleImageCopyCallback singleImageCopyCallback) {
-        this.mSingleImageCopyCallback = singleImageCopyCallback;
+    public void setSingleImageCopyCallback(@NonNull IndividualItemCopyCallback individualItemCopyCallback) {
+        this.mIndividualItemCopyCallback = individualItemCopyCallback;
     }
 
-    public void setImageListResizeCallback(@NonNull ImageListResizeCallback imageListResizeCallback) {
-        this.mImageListResizeCallback = imageListResizeCallback;
+    public void setImageListResizeCallback(@NonNull EntireBatchResizeCallback entireBatchResizeCallback) {
+        this.mEntireBatchResizeCallback = entireBatchResizeCallback;
     }
 
-    public void setSingleImageResizeCallback(@NonNull SingleImageResizeCallback imageListResizeCallback) {
-        this.mSingleImageResizeCallback = imageListResizeCallback;
+    public void setSingleImageResizeCallback(@NonNull IndividualItemResizeCallback imageListResizeCallback) {
+        this.mIndividualItemResizeCallback = imageListResizeCallback;
     }
 
     public void setTaskParameters(@NonNull KompressorParameters parameters) {
@@ -84,7 +84,7 @@ public final class TaskManager {
         switch (taskType) {
             case TASK_COPY_TO_DIRECTORY:
                 File copyToDestination = kompressorParameters.getToCopyDestinationDirectory();
-                if (copyToDestination != null && mImageListCopyCallback != null) {
+                if (copyToDestination != null && mEntireBatchCopyCallback != null) {
                     startImageCopyToDestination(imageFiles, copyToDestination);
                 }
                 break;
@@ -96,7 +96,7 @@ public final class TaskManager {
             case TASK_RESIZE_AND_COMPRESS_TO_RATIO:
                 int maxResizeWidth = kompressorParameters.getMaximumResizeWidth();
                 int maxCompressionRatio = kompressorParameters.getCompressionRatio();
-                if (mImageListCopyCallback != null && maxResizeWidth != 0 && maxCompressionRatio != 0) {
+                if (mEntireBatchCopyCallback != null && maxResizeWidth != 0 && maxCompressionRatio != 0) {
                     startImageResizeAndCompress(imageFiles, maxResizeWidth, maxCompressionRatio);
                 }
                 break;
@@ -137,15 +137,15 @@ public final class TaskManager {
      * Assign callbacks in the case of an resize task
      */
     private void assignResizeCallbacks(@NonNull MainTaskCallable mainTaskCallable) {
-        mainTaskCallable.setSingleImageResizeCallback(mSingleImageResizeCallback);
-        mainTaskCallable.setImageListResizeCallback(mImageListResizeCallback);
+        mainTaskCallable.setIndividualItemResizeCallback(mIndividualItemResizeCallback);
+        mainTaskCallable.setEntireBatchResizeCallback(mEntireBatchResizeCallback);
     }
 
     /**
      * Assign callbacks in the case of an copy task
      */
     private void assignCopyCallbacks(@NonNull MainTaskCallable mainTaskCallable) {
-        mainTaskCallable.setImageListCopyCallback(mImageListCopyCallback);
-        mainTaskCallable.setSingleImageCopyCallback(mSingleImageCopyCallback);
+        mainTaskCallable.setEntireBatchCopyCallback(mEntireBatchCopyCallback);
+        mainTaskCallable.setIndividualItemCopyCallback(mIndividualItemCopyCallback);
     }
 }
