@@ -1,22 +1,19 @@
-
-package com.example.alexpop.resizerlib.library.actions;
+package com.example.alexpop.resizerlib.kompressorLib.actions;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-import static com.example.alexpop.resizerlib.library.misc.Misc.formatTimeHHmmSS;
 
 public class ImageResizeCompressAction {
 
-    private String TAG = ImageResizeCompressAction.class.getSimpleName();
+    private final String TAG = ImageResizeCompressAction.class.getSimpleName();
 
     public File resizeAndCompressAtPath(@NonNull String imagePath , int maxSize, int compressionRatio){
-        Log.i(TAG , "Starting :imgCompress() on thread " + Thread.currentThread().getName() + " at time : " + formatTimeHHmmSS(System.currentTimeMillis()));
         File file = new File (imagePath);
         try {
             Bitmap bitmap;
@@ -41,12 +38,10 @@ public class ImageResizeCompressAction {
 
             // will load & resize the image to be 1/inSampleSize dimensions
             bitmap = BitmapFactory.decodeFile(imagePath, mBitmapOptions);
-            Log.d(TAG , "Compressing bitmap to -> " + bitmap.getHeight() + " pixels height and " + bitmap.getWidth() + " pixels width");
             bitmap.compress(Bitmap.CompressFormat.JPEG, compressionRatio, new FileOutputStream(file));
-        }
-        catch (Throwable t) {
-            Log.e(TAG, "Error while trying to resize the file." + t.toString ());
-            t.printStackTrace ();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
         return file;
     }
