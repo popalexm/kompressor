@@ -1,4 +1,4 @@
-package com.example.alexpop.resizerlib.library.callbacks;
+package com.example.alexpop.resizerlib.kompressorLib.callbacks;
 
 import android.support.annotation.NonNull;
 
@@ -6,13 +6,11 @@ import java.io.File;
 
 public interface SingleImageCopyCallback {
 
-    /** Called once a file has been sucessfuly copied
-       @return File
+    /** Called once a file has been successfully copied
      */
     void onSingleImageCopySuccess(@NonNull File copiedFile);
 
     /** Called once a file has failed to copy
-     @return File
      */
     void onSingleImageCopyFailed(@NonNull File failedToCopyFile);
 
