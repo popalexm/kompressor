@@ -96,7 +96,7 @@ public final class TaskManager {
             case TASK_RESIZE_AND_COMPRESS_TO_RATIO:
                 int maxResizeWidth = kompressorParameters.getMaximumResizeWidth();
                 int maxCompressionRatio = kompressorParameters.getCompressionRatio();
-                if (mEntireBatchCopyCallback != null && maxResizeWidth != 0 && maxCompressionRatio != 0) {
+                if (mEntireBatchResizeCallback != null && maxResizeWidth != 0 && maxCompressionRatio != 0) {
                     startImageResizeAndCompress(imageFiles, maxResizeWidth, maxCompressionRatio);
                 }
                 break;

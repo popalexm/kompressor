@@ -1,4 +1,6 @@
-package com.example.alexpop.resizerlib.app;
+package com.example.alexpop.resizerlib.app.dialogs;
+
+import com.example.alexpop.resizerlib.R;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -7,8 +9,6 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-
-import com.example.alexpop.resizerlib.R;
 
 
 public class ResizeSettingsAlertDialog extends AlertDialog implements DialogInterface.OnClickListener {
@@ -33,8 +33,8 @@ public class ResizeSettingsAlertDialog extends AlertDialog implements DialogInte
     }
 
     @Override
-    public void onClick(DialogInterface dialogInterface, int i) {
-        switch (i) {
+    public void onClick(DialogInterface dialogInterface, int btnId) {
+        switch (btnId) {
             case AlertDialog.BUTTON_POSITIVE :
                 mSettingsCallback.onButtonOkSelected((Integer.valueOf(mCompressionRatioEditText.getText().toString())), Integer.valueOf(mMaxHeightEditText.getText().toString()));
                 break;
@@ -53,10 +53,8 @@ public class ResizeSettingsAlertDialog extends AlertDialog implements DialogInte
         mMaxHeightEditText = dialogView.findViewById(R.id.resize_max_height);
         mCompressionRatioEditText = dialogView.findViewById(R.id.resize_compress_ration);
 
-        mDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Dismiss",
-                this);
-        mDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
-                this);
+        mDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Dismiss", this);
+        mDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK", this);
 
         mDialog.show();
         mMaxHeightEditText.setText(Integer.toString(mOldMaxHeight));

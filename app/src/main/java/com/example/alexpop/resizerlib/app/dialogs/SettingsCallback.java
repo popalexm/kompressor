@@ -1,4 +1,4 @@
-package com.example.alexpop.resizerlib.app;
+package com.example.alexpop.resizerlib.app.dialogs;
 
 public interface SettingsCallback {
 

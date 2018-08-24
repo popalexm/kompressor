@@ -5,6 +5,7 @@ import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemCopy
 import com.example.alexpop.resizerlib.kompressorLib.handlers.MainThreadMessageHandler;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 import java.io.File;
@@ -16,13 +17,13 @@ public class ImageCopyWorkerTask extends BaseWorkerTaskCallable {
     @NonNull
     private final File copyToDirectory;
     @NonNull
-    private final File copyFromDirectory;
-    @NonNull
+    private final File toCopyFile;
+    @Nullable
     private final IndividualItemCopyCallback copyStatusCallback;
 
-    ImageCopyWorkerTask(@NonNull File copyToDirectory, @NonNull File copyFromDirectory, @NonNull IndividualItemCopyCallback copyStatusCallback) {
+    ImageCopyWorkerTask(@NonNull File copyToDirectory, @NonNull File toCopyFile, @Nullable IndividualItemCopyCallback copyStatusCallback) {
         this.copyToDirectory = copyToDirectory;
-        this.copyFromDirectory = copyFromDirectory;
+        this.toCopyFile = toCopyFile;
         this.copyStatusCallback = copyStatusCallback;
     }
 
@@ -33,16 +34,14 @@ public class ImageCopyWorkerTask extends BaseWorkerTaskCallable {
            and the boolean status false assigned to it
         */
         MainThreadMessageHandler singleImageMessageHandler = MainThreadMessageHandler.getInstance();
-        boolean copyStatus;
         try {
-            File resultFile = ImageCopyAction.copyFileToDirectory(copyToDirectory, copyFromDirectory);
+            File resultFile = ImageCopyAction.copyFileToDirectory(copyToDirectory, toCopyFile);
             singleImageMessageHandler.postImageCopySuccessMessage(copyStatusCallback, resultFile);
-            copyStatus = true;
+            return Pair.create(resultFile, true);
         } catch (IOException e) {
             e.printStackTrace();
             singleImageMessageHandler.postImageCopyFailedMessage(copyStatusCallback, copyToDirectory);
-            copyStatus = false;
+            return Pair.create(toCopyFile, false);
         }
-        return Pair.create(copyFromDirectory, copyStatus);
     }
 }

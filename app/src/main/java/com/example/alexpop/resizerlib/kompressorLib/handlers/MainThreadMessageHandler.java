@@ -10,6 +10,7 @@ import com.example.alexpop.resizerlib.kompressorLib.handlers.models.ResizeStatus
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.File;
 
@@ -64,23 +65,31 @@ public class MainThreadMessageHandler {
         mMainHandler.post(mainThreadRunnable);
     }
 
-    public synchronized void postImageCopySuccessMessage(@NonNull IndividualItemCopyCallback individualItemCopyCallback, @NonNull File copiedFile) {
-        Runnable mainThreadCallback = () -> individualItemCopyCallback.onIndividualItemCopySuccess(copiedFile);
-        mMainHandler.post(mainThreadCallback);
+    public synchronized void postImageCopySuccessMessage(@Nullable IndividualItemCopyCallback copyCallback, @NonNull File copiedFile) {
+        if (copyCallback != null) {
+            Runnable mainThreadCallback = () -> copyCallback.onIndividualItemCopySuccess(copiedFile);
+            mMainHandler.post(mainThreadCallback);
+        }
     }
 
-    public synchronized void postImageCopyFailedMessage(@NonNull IndividualItemCopyCallback individualItemCopyCallback, @NonNull File failedFile) {
-        Runnable mainThreadCallback = () -> individualItemCopyCallback.onIndividualItemCopyFailed(failedFile);
-        mMainHandler.post(mainThreadCallback);
+    public synchronized void postImageCopyFailedMessage(@Nullable IndividualItemCopyCallback copyCallback, @NonNull File failedFile) {
+        if (copyCallback != null) {
+            Runnable mainThreadCallback = () -> copyCallback.onIndividualItemCopyFailed(failedFile);
+            mMainHandler.post(mainThreadCallback);
+        }
     }
 
-    public synchronized void postImageResizeSuccessMessage(@NonNull IndividualItemResizeCallback singleImageCopyCallback, @NonNull File resizedFile) {
-        Runnable mainThreadCallback = () -> singleImageCopyCallback.onIndividualItemResizeSuccess(resizedFile);
-        mMainHandler.post(mainThreadCallback);
+    public synchronized void postImageResizeSuccessMessage(@Nullable IndividualItemResizeCallback resizeCallback, @NonNull File resizedFile) {
+        if (resizeCallback != null) {
+            Runnable mainThreadCallback = () -> resizeCallback.onIndividualItemResizeSuccess(resizedFile);
+            mMainHandler.post(mainThreadCallback);
+        }
     }
 
-    public synchronized void postImageResizeFailedMessage(@NonNull IndividualItemResizeCallback singleImageCopyCallback, @NonNull File failedFile) {
-        Runnable mainThreadCallback = () -> singleImageCopyCallback.onIndividualItemResizeFailed(failedFile);
-        mMainHandler.post(mainThreadCallback);
+    public synchronized void postImageResizeFailedMessage(@Nullable IndividualItemResizeCallback resizeCallback, @NonNull File failedFile) {
+        if (resizeCallback != null) {
+            Runnable mainThreadCallback = () -> resizeCallback.onIndividualItemResizeFailed(failedFile);
+            mMainHandler.post(mainThreadCallback);
+        }
     }
 }

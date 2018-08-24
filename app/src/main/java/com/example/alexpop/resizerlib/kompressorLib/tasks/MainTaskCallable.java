@@ -110,8 +110,9 @@ public class MainTaskCallable implements Callable<List<File>> {
         List<File> imageFiles = parameters.getImageFiles();
         File toCopyDestinationDirectory = parameters.getToCopyDestinationDirectory();
 
-        if (toCopyDestinationDirectory != null && individualItemCopyCallback != null) {
+        if (toCopyDestinationDirectory != null) {
             activelyRunningTasks = new ArrayList<>();
+
             for (int i = 0; i < imageFiles.size(); i++) {
                 ImageCopyWorkerTask imageCopyWorkerTask = new ImageCopyWorkerTask(imageFiles.get(i), toCopyDestinationDirectory, individualItemCopyCallback);
                 activelyRunningTasks.add(imageCopyWorkerTask);
@@ -129,7 +130,7 @@ public class MainTaskCallable implements Callable<List<File>> {
         List<File> imagesFiles = parameters.getImageFiles();
         int maxResizeWidth = parameters.getMaximumResizeWidth();
         int compressionRatio = parameters.getCompressionRatio();
-        if (maxResizeWidth > 0 && compressionRatio > 0 && individualItemResizeCallback != null) {
+        if (maxResizeWidth > 0 && compressionRatio > 0) {
             activelyRunningTasks = new ArrayList<>();
             for (int i = 0; i < imagesFiles.size(); i++) {
                 String imgPath = imagesFiles.get(i)
@@ -138,8 +139,8 @@ public class MainTaskCallable implements Callable<List<File>> {
                         individualItemResizeCallback);
                 activelyRunningTasks.add(imageResizeWorkerTask);
             }
+            awaitResults();
         }
-        awaitResults();
     }
 
     /**

@@ -5,6 +5,7 @@ import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemResi
 import com.example.alexpop.resizerlib.kompressorLib.handlers.MainThreadMessageHandler;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 import java.io.File;
@@ -16,10 +17,10 @@ public class ImageResizeWorkerTask extends BaseWorkerTaskCallable {
     private final String imagePath;
     private final int maximumWidth;
     private final int compressionRatio;
-    @NonNull
+    @Nullable
     private final IndividualItemResizeCallback callback;
 
-    ImageResizeWorkerTask(@NonNull String path, int maximumWidth, int compressionRatio, @NonNull IndividualItemResizeCallback imageResizeCallback) {
+    ImageResizeWorkerTask(@NonNull String path, int maximumWidth, int compressionRatio, @Nullable IndividualItemResizeCallback imageResizeCallback) {
         this.imagePath = path;
         this.compressionRatio = compressionRatio;
         this.maximumWidth = maximumWidth;

@@ -3,4 +3,8 @@
     <string name="action_compress">Compress Pictures</string>
     <string name="action_delete">Delete Pictures</string>
     <string name="action_refresh">Resize Settings</string>
+
+    <string name="message_started_to_copy_file">Starting to copy the selected files !</string>
+    <string name="message_failed_to_copy_file">Failed to copy .. </string>
+    <string name="message_please_select_multiple_images">Please select multiple images !</string>
 </resources>
