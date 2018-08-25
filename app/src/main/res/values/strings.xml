@@ -4,7 +4,18 @@
     <string name="action_delete">Delete Pictures</string>
     <string name="action_refresh">Resize Settings</string>
 
+    <string name="compression_ration">Compression Ratio</string>
+    <string name="maximum_resize_height">Maximum Resize Height</string>
+    <string name="label_dialog_btn_save">Save</string>
+    <string name="label_dialog_btn_cancel">Cancel</string>
+
     <string name="message_started_to_copy_file">Starting to copy the selected files !</string>
     <string name="message_failed_to_copy_file">Failed to copy .. </string>
     <string name="message_please_select_multiple_images">Please select multiple images !</string>
+    <string name="message_starting_to_compress">Started to compress the selected photos !</string>
+    <string name="message_sucessfully_resize">Successfully resized </string>
+    <string name="message_files">files !</string>
+    <string name="message_deleted_all_files">All the imported photos have been deleted !</string>
+
+
 </resources>

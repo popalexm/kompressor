@@ -1,4 +1,4 @@
-package com.example.alexpop.resizerlib.app.useCases;
+package com.example.alexpop.resizerlib.app.useCases.base;
 
 import io.reactivex.Completable;
 

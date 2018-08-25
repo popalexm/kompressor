@@ -1,7 +1,6 @@
-package com.example.alexpop.resizerlib.app.activity;
+package com.example.alexpop.resizerlib.app.main;
 
 import com.example.alexpop.resizerlib.R;
-import com.example.alexpop.resizerlib.app.main.MainFragmentView;
 
 import android.Manifest;
 import android.content.Intent;
@@ -32,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupPhotoViewFragment() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content, new MainFragmentView())
+                .replace(R.id.content, new MainFragmentView(), MainFragmentView.TAG)
                 .commit();
     }
 
@@ -52,17 +51,19 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_compress_pictures:
+                sendCompressPicturesRequest();
                 break;
 
             case R.id.action_clear_pictures:
+                deleteAllPhotos();
                 break;
 
             case R.id.action_refresh_pictures:
-
+                refreshImportedPhotos();
                 break;
 
             case R.id.action_set_attributes:
-
+                openCompressionSettingsDialog();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -77,6 +78,34 @@ public class MainActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     MainActivity.WRITE_STORAGE_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    private void sendCompressPicturesRequest() {
+        MainFragmentView fragment = (MainFragmentView) getSupportFragmentManager().findFragmentByTag(MainFragmentView.TAG);
+        if (fragment != null) {
+            fragment.startPhotoCompression();
+        }
+    }
+
+    private void openCompressionSettingsDialog() {
+        MainFragmentView fragment = (MainFragmentView) getSupportFragmentManager().findFragmentByTag(MainFragmentView.TAG);
+        if (fragment != null) {
+            fragment.openCompressionSettings();
+        }
+    }
+
+    private void deleteAllPhotos() {
+        MainFragmentView fragment = (MainFragmentView) getSupportFragmentManager().findFragmentByTag(MainFragmentView.TAG);
+        if (fragment != null) {
+            fragment.deleteImportedPhotos();
+        }
+    }
+
+    private void refreshImportedPhotos() {
+        MainFragmentView fragment = (MainFragmentView) getSupportFragmentManager().findFragmentByTag(MainFragmentView.TAG);
+        if (fragment != null) {
+            fragment.refreshImportedPhotos();
         }
     }
 }

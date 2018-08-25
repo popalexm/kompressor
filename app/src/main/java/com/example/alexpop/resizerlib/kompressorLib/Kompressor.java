@@ -40,19 +40,19 @@ public final class Kompressor {
      * Assign callbacks back to the calling thread
      */
 
-    public void withResizeCallback(@NonNull EntireBatchResizeCallback uiCallback) {
+    public void withBatchResizeCallbacks(@NonNull EntireBatchResizeCallback uiCallback) {
         this.entireBatchResizeCallback = uiCallback;
     }
 
-    public void withCopyCallback(@NonNull EntireBatchCopyCallback uiCallback) {
+    public void withBatchCopyCallbacks(@NonNull EntireBatchCopyCallback uiCallback) {
         this.entireBatchCopyCallback = uiCallback;
     }
 
-    public void withSingleImageCopyCallback(@NonNull IndividualItemCopyCallback uiCallback) {
+    public void withSingleItemCopyCallbacks(@NonNull IndividualItemCopyCallback uiCallback) {
         this.singleImageCopyCallback = uiCallback;
     }
 
-    public void withSingleImageResizeCallback(@NonNull IndividualItemResizeCallback uiCallback) {
+    public void withSingleItemResizeCallbacks(@NonNull IndividualItemResizeCallback uiCallback) {
         this.individualItemResizeCallback = uiCallback;
     }
 

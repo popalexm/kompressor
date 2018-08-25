@@ -1,5 +1,7 @@
 package com.example.alexpop.resizerlib.app.useCases;
 
+import com.example.alexpop.resizerlib.app.useCases.base.BaseUseCaseCompletable;
+
 import android.support.annotation.NonNull;
 
 import java.io.File;

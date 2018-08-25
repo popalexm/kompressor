@@ -1,6 +1,7 @@
 package com.example.alexpop.resizerlib.app.useCases;
 
 import com.example.alexpop.resizerlib.app.model.Photo;
+import com.example.alexpop.resizerlib.app.useCases.base.BaseUseCaseMaybe;
 import com.example.alexpop.resizerlib.app.utils.Utils;
 
 import android.support.annotation.NonNull;

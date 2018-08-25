@@ -1,6 +1,6 @@
 package com.example.alexpop.resizerlib.app.application;
 
-import com.example.alexpop.resizerlib.app.activity.Injection;
+import com.example.alexpop.resizerlib.app.injection.Injection;
 
 import android.app.Application;
 

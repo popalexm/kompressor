@@ -1,4 +1,4 @@
-package com.example.alexpop.resizerlib.app.activity;
+package com.example.alexpop.resizerlib.app.injection;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

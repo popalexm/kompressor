@@ -15,6 +15,8 @@ public class MainFragmentContract extends BaseContract {
         void openFileExplorer();
 
         void showAllPhotos(@NonNull List<Photo> photos);
+
+        void showCompressionSettingsDialog(int oldCompressionRatio, int oldMaxHeight);
     }
 
     public interface Presenter extends BaseContract.Presenter {
@@ -28,5 +30,7 @@ public class MainFragmentContract extends BaseContract {
         void onCompressClicked();
 
         void onRefreshClicked();
+
+        void onDeleteImportedPhotosClicked();
     }
 }

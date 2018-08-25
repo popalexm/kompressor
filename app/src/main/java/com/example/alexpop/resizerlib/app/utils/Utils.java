@@ -16,9 +16,8 @@ public final class Utils {
 
     @NonNull
     public static String getRealPathFromUri(@NonNull Uri uri) {
-        String wholeID = DocumentsContract.getDocumentId(uri);
-        // Split at colon, use second item in the array
-        return wholeID.split(":")[1];
+        String documentId = DocumentsContract.getDocumentId(uri);
+        return documentId.split(":")[1];
     }
 
     @NonNull

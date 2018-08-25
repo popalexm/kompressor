@@ -2,10 +2,12 @@ package com.example.alexpop.resizerlib.app.main;
 
 import com.example.alexpop.resizerlib.R;
 import com.example.alexpop.resizerlib.app.adapters.PhotosRecyclerViewAdapter;
+import com.example.alexpop.resizerlib.app.dialogs.ResizeSettingsDialogFragment;
 import com.example.alexpop.resizerlib.app.model.Photo;
 import com.example.alexpop.resizerlib.app.utils.Utils;
 import com.example.alexpop.resizerlib.databinding.FragmentPhotoListBinding;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -27,6 +29,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class MainFragmentView extends Fragment implements MainFragmentContract.View {
 
+    public final static String TAG = MainFragmentView.class.getSimpleName();
     @NonNull
     private static final String IMAGE_TYPE = "image/jpeg";
     private static final int OPEN_LOCAL_STORAGE_CODE = 3;
@@ -107,5 +110,34 @@ public class MainFragmentView extends Fragment implements MainFragmentContract.V
     public void showMessage(@NonNull String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT)
                 .show();
+    }
+
+    @Override
+    public void showCompressionSettingsDialog(int oldCompressionRatio, int oldMaxHeight) {
+        ResizeSettingsDialogFragment fragment = new ResizeSettingsDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(ResizeSettingsDialogFragment.BUNDLE_COMPRESSION_VALUE, oldCompressionRatio);
+        bundle.putInt(ResizeSettingsDialogFragment.BUNDLE_RESIZE_VALUE, oldMaxHeight);
+        fragment.setArguments(bundle);
+        Activity activity = getActivity();
+        if (activity != null) {
+            fragment.show(activity.getFragmentManager(), ResizeSettingsDialogFragment.TAG);
+        }
+    }
+
+    public void startPhotoCompression() {
+        presenter.onCompressClicked();
+    }
+
+    public void openCompressionSettings() {
+        presenter.onSettingsClicked();
+    }
+
+    public void deleteImportedPhotos() {
+        presenter.onDeleteImportedPhotosClicked();
+    }
+
+    public void refreshImportedPhotos() {
+        presenter.onRefreshClicked();
     }
 }

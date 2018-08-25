@@ -13,10 +13,10 @@ public interface EntireBatchResizeCallback {
 
     /**Called upon when image resize tasks have been completed, returns a list of successfully resized files
      */
-    void onBatchResizeSuccessListener(@NonNull List<File> successfullyResizedFiles);
+    void onBatchResizeSuccessListener(@NonNull List<File> files);
 
     /**Called upon when image resize tasks have been completed,
      * returns a list of files that have failed to be resized
      */
-    void onBatchResizeFailedListener(@NonNull List<File> failedToResizeFiles);
+    void onBatchResizeFailedListener(@NonNull List<File> files);
 }
