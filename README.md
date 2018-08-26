@@ -13,18 +13,43 @@
             # Create KompressorParameters object for passing the files to be processed, using the provided builder class
             
             KompressorParameters parameters = KompressorParameters.MainTaskParametersBuilder()
-                .setImageFiles(imageFileList)              // An List<File> object containing the images which need to be processsed
-                .setTaskType(TaskType.TASK_COPY_TO_DIRECTORY) // A TaskType object
-                .setToCopyDestinationDirectory(toCopyDestinationDirectory) // Optional Param , the directory wehere the files will be copied
-                .setCompressionRatio(int compressionRatio) // Optional Param,a maximum compression ratio (must be a compression ratio between 0-100, expressed as an int variable).
-                .setMaximumResizeWidth(int maximumResizeWidth) // Optional Param, maximum height in pixels which will be used when resizing the image files.
-                .createMainTaskParameters(); // Creates the parameters object
+             /* An List<File> object containing the images which need to be processsed */
+             .setImageFiles(imageFileList)              
+             
+             /* A TaskType object defining the action to be taken upon the image files */
+             .setTaskType(TaskType.TASK_COPY_TO_DIRECTORY) 
+             
+             /* Optional parameter , only used in conjuction with TaskType.COPY_TO_DIRECTORY , the directory where the images files 
+             will be copied */
+             .setToCopyDestinationDirectory(toCopyDestinationDirectory) 
+             
+              /* Optional Param, the maximum compression ratio (must be a compression ratio between 0-100, 
+              expressed as an integer variable) */
+             .setCompressionRatio(int compressionRatio)
+             
+             /* Optional Param, maximum height in pixels which will be used when resizing the image files */
+             .setMaximumResizeWidth(int maximumResizeWidth) 
+             
+             /* Creates the parameters object */
+             .createMainTaskParameters(); 
             
-         
-  
-            # Start the task by calling the publi startTask method and assigining the previously created KompressorParameters object
+            # Start the task by calling the public startTask() method and assigining the previously created KompressorParameters object
             kompressor.startTask(parameters);
+            
+            # Callbacks from the library 
+            
+            /* Set of callbacks that returns the list of sucessfully resized files, and the list of failed ones
+            kompressor.withBatchResizeCallbacks(EntireBatchResizeCallback uiCallback);
+       
+            /* Set of callbacks that returns the list of sucessfully copied files, and the list of failed ones
+            kompressor.withBatchCopyCallbacks(@NonNull EntireBatchCopyCallback uiCallback) 
+            
+            /* Callbacks for each individual file, called upon once each file is copied to the destination directory */
+            kompressor.withSingleItemCopyCallbacks(@NonNull IndividualItemCopyCallback uiCallback) 
 
+            /* Same as above, but for each individual resize operation */
+            kompressor.withSingleItemResizeCallbacks(@NonNull IndividualItemResizeCallback uiCallback) 
+           
             # Gradle import release 
             Will be relased as a gradle package once it has been fully tested.
                 
