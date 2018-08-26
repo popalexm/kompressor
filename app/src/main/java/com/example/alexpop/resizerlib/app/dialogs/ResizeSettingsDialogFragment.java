@@ -1,12 +1,12 @@
 package com.example.alexpop.resizerlib.app.dialogs;
 
 import com.example.alexpop.resizerlib.R;
+import com.example.alexpop.resizerlib.app.injection.Injection;
 import com.example.alexpop.resizerlib.app.utils.GlobalConstants;
 import com.example.alexpop.resizerlib.app.viewModels.ResizeSettingsDialogViewModel;
 import com.example.alexpop.resizerlib.databinding.FragmentResizeSettingsBinding;
 
 import android.app.DialogFragment;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -47,7 +47,7 @@ public class ResizeSettingsDialogFragment extends DialogFragment implements Dial
 
     @Override
     public void onButtonSaveClicked() {
-        SharedPreferences preferences = getActivity().getSharedPreferences(GlobalConstants.KOMPRESSOR_LIB_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences preferences = Injection.provideSharedPreferences();
         SharedPreferences.Editor edit = preferences.edit();
         edit.clear();
         edit.putInt(GlobalConstants.COMPRESSION_RATIO_SHARED_PREFS, Integer.parseInt(viewModel.compressionRatio.get()));

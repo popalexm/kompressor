@@ -66,6 +66,11 @@ public class MainFragmentView extends Fragment implements MainFragmentContract.V
     }
 
     @Override
+    public void clearAllPhotos() {
+        binding.recyclerViewListPhotos.setAdapter(null);
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == MainFragmentView.OPEN_LOCAL_STORAGE_CODE && resultCode == RESULT_OK) {

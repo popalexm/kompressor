@@ -4,11 +4,14 @@ import com.bumptech.glide.Glide;
 
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableField;
+import android.support.annotation.NonNull;
 import android.widget.ImageView;
 
 public class ImageViewModel {
 
+    @NonNull
     public ObservableField<String> photoSize = new ObservableField<>("");
+    @NonNull
     public ObservableField<String> photoUrl = new ObservableField<>("");
 
     @BindingAdapter("imageUrl")

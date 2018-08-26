@@ -11,11 +11,12 @@
 
     <string name="message_started_to_copy_file">Starting to copy the selected files !</string>
     <string name="message_failed_to_copy_file">Failed to copy .. </string>
+    <string name="message_failed_to_resize">Failed to compress .. </string>
     <string name="message_please_select_multiple_images">Please select multiple images !</string>
     <string name="message_starting_to_compress">Started to compress the selected photos !</string>
-    <string name="message_sucessfully_resize">Successfully resized </string>
+    <string name="message_successfully_compressed">Successfully compressed </string>
     <string name="message_files">files !</string>
     <string name="message_deleted_all_files">All the imported photos have been deleted !</string>
-
+    <string name="message_read_write_storage_permissions_denied">Please enable permissions to Read/Write from the external storage, or else the application will not work !</string>
 
 </resources>

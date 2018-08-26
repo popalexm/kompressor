@@ -1,6 +1,7 @@
 package com.example.alexpop.resizerlib.app.useCases;
 
 import com.example.alexpop.resizerlib.app.useCases.base.BaseUseCaseCompletable;
+import com.example.alexpop.resizerlib.app.utils.Utils;
 
 import android.support.annotation.NonNull;
 
@@ -10,12 +11,12 @@ import io.reactivex.Completable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class DeleteAllCopiedPictures implements BaseUseCaseCompletable {
+public class DeleteAllCopiedPicturesUseCase implements BaseUseCaseCompletable {
 
     @NonNull
     private final File directory;
 
-    public DeleteAllCopiedPictures(@NonNull File directory) {
+    public DeleteAllCopiedPicturesUseCase(@NonNull File directory) {
         this.directory = directory;
     }
 
@@ -23,14 +24,10 @@ public class DeleteAllCopiedPictures implements BaseUseCaseCompletable {
     public Completable perform() {
         return Completable.fromAction(() -> {
             File[] files = directory.listFiles();
-            for (File file : files) {
-                if (file != null) {
-                    if (file.getName()
-                            .toLowerCase()
-                            .endsWith(".jpeg") || file.getName()
-                            .toLowerCase()
-                            .endsWith(".jpg")) {
-                        file.delete();
+            for (File photoFile : files) {
+                if (photoFile != null) {
+                    if (Utils.isFilePictureFormat(photoFile)) {
+                        photoFile.delete();
                     }
                 }
             }

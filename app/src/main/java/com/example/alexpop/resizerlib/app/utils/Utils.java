@@ -11,6 +11,9 @@ import java.text.DecimalFormat;
 
 public final class Utils {
 
+    private static final String JPG = ".jpg";
+    private static final String JPEG = ".jpeg";
+
     private Utils() {
     }
 
@@ -20,6 +23,9 @@ public final class Utils {
         return documentId.split(":")[1];
     }
 
+    /**
+     * Provides the directory where the photos will be copied , and later on compressed
+     */
     @NonNull
     public static File getCopyToMediaDirectory(@NonNull Context context) {
         return new File(Environment.getExternalStorageDirectory() + "/Android/data/" + context.getPackageName() + "/Files");
@@ -42,5 +48,13 @@ public final class Utils {
         }
 
         return "";
+    }
+
+    public static boolean isFilePictureFormat(@NonNull File file) {
+        return file.getName()
+                .toLowerCase()
+                .endsWith(Utils.JPEG) || file.getName()
+                .toLowerCase()
+                .endsWith(Utils.JPG);
     }
 }

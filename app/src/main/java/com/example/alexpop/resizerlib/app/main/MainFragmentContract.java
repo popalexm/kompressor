@@ -16,6 +16,8 @@ public class MainFragmentContract extends BaseContract {
 
         void showAllPhotos(@NonNull List<Photo> photos);
 
+        void clearAllPhotos();
+
         void showCompressionSettingsDialog(int oldCompressionRatio, int oldMaxHeight);
     }
 

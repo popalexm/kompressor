@@ -3,8 +3,8 @@ package com.example.alexpop.resizerlib.app.main;
 import com.example.alexpop.resizerlib.R;
 import com.example.alexpop.resizerlib.app.injection.Injection;
 import com.example.alexpop.resizerlib.app.model.Photo;
-import com.example.alexpop.resizerlib.app.useCases.DeleteAllCopiedPictures;
-import com.example.alexpop.resizerlib.app.useCases.GetAvailableImagesUseCaseMaybe;
+import com.example.alexpop.resizerlib.app.useCases.DeleteAllCopiedPicturesUseCase;
+import com.example.alexpop.resizerlib.app.useCases.GetAvailableImagesUseCase;
 import com.example.alexpop.resizerlib.app.utils.GlobalConstants;
 import com.example.alexpop.resizerlib.app.utils.Utils;
 import com.example.alexpop.resizerlib.kompressorLib.Kompressor;
@@ -14,10 +14,10 @@ import com.example.alexpop.resizerlib.kompressorLib.definitions.TaskType;
 import com.example.alexpop.resizerlib.kompressorLib.tasks.KompressorParameters;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,10 +61,10 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
 
     @Override
     public void onSettingsClicked() {
-        SharedPreferences preferences = Injection.provideGlobalContext()
-                .getSharedPreferences(GlobalConstants.KOMPRESSOR_LIB_PREFERENCES, Context.MODE_PRIVATE);
-        int compressRatio = preferences.getInt(GlobalConstants.COMPRESSION_RATIO_SHARED_PREFS, 0);
-        int maxHeight = preferences.getInt(GlobalConstants.MAX_HEIGHT_RATIO_SHARED_PREFS, 0);
+        int compressRatio = Injection.provideSharedPreferences()
+                .getInt(GlobalConstants.COMPRESSION_RATIO_SHARED_PREFS, 0);
+        int maxHeight = Injection.provideSharedPreferences()
+                .getInt(GlobalConstants.MAX_HEIGHT_RATIO_SHARED_PREFS, 0);
         if (isViewAttached) {
             view.showCompressionSettingsDialog(compressRatio, maxHeight);
         }
@@ -83,7 +83,7 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
     @Override
     public void onDeleteImportedPhotosClicked() {
         File mediaDirectory = Utils.getCopyToMediaDirectory(Injection.provideGlobalContext());
-        new DeleteAllCopiedPictures(mediaDirectory).perform()
+        new DeleteAllCopiedPicturesUseCase(mediaDirectory).perform()
                 .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -150,7 +150,7 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
     }
 
     private void getAvailablePhotosInInternalDirectory() {
-        new GetAvailableImagesUseCaseMaybe(mediaDirectory).perform()
+        new GetAvailableImagesUseCase(mediaDirectory).perform()
                 .subscribe(new MaybeObserver<List<Photo>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -165,7 +165,13 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
 
                     @Override
                     public void onError(Throwable e) {
-                        e.printStackTrace();
+                        if (e instanceof FileNotFoundException) {
+                            if (isViewAttached) {
+                                view.clearAllPhotos();
+                            }
+                        } else {
+                            e.printStackTrace();
+                        }
                     }
 
                     @Override
@@ -175,25 +181,16 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
     }
 
     private void startCompressionOnFiles() {
-        new GetAvailableImagesUseCaseMaybe(mediaDirectory).perform()
+        new GetAvailableImagesUseCase(mediaDirectory).perform()
                 .subscribe(new MaybeObserver<List<Photo>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                     }
 
                     @Override
-                    public void onSuccess(List<Photo> photos) {
-                        if (photos != null && photos.size() > 0) {
-                            List<File> photoFiles = new ArrayList<>();
-                            for (Photo photo : photos) {
-                                photoFiles.add(photo.getPhotoFile());
-                            }
-                            KompressorParameters parameters = new KompressorParameters.MainTaskParametersBuilder().setImageFiles(photoFiles)
-                                    .setTaskType(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO)
-                                    .setMaximumResizeWidth(750)
-                                    .setCompressionRatio(80)
-                                    .createMainTaskParameters();
-                            kompressor.startTask(parameters);
+                    public void onSuccess(List<Photo> availablePhotos) {
+                        if (availablePhotos != null && availablePhotos.size() > 0) {
+                            initKompressorLibParameters(availablePhotos);
                         }
                     }
 
@@ -208,6 +205,25 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
                 });
     }
 
+    private void initKompressorLibParameters(@NonNull List<Photo> availablePhotos) {
+        List<File> photoFiles = new ArrayList<>();
+        for (Photo photo : availablePhotos) {
+            photoFiles.add(photo.getPhotoFile());
+        }
+        int compressRatio = Injection.provideSharedPreferences()
+                .getInt(GlobalConstants.COMPRESSION_RATIO_SHARED_PREFS, 0);
+        int maxHeight = Injection.provideSharedPreferences()
+                .getInt(GlobalConstants.MAX_HEIGHT_RATIO_SHARED_PREFS, 0);
+        if (compressRatio > 0 && maxHeight > 0) {
+            KompressorParameters parameters = new KompressorParameters.MainTaskParametersBuilder().setImageFiles(photoFiles)
+                    .setTaskType(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO)
+                    .setMaximumResizeWidth(maxHeight)
+                    .setCompressionRatio(compressRatio)
+                    .createMainTaskParameters();
+            kompressor.startTask(parameters);
+        }
+    }
+
     @Override
     public void onBatchResizeStartedListener() {
         if (isViewAttached) {
@@ -220,7 +236,7 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
     public void onBatchResizeSuccessListener(@NonNull List<File> files) {
         if (isViewAttached) {
             Context context = Injection.provideGlobalContext();
-            String starMsg = context.getString(R.string.message_starting_to_compress);
+            String starMsg = context.getString(R.string.message_successfully_compressed);
             String endMsg = context.getString(R.string.message_files);
             view.showMessage(starMsg + files.size() + endMsg);
         }
@@ -230,7 +246,10 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
     @Override
     public void onBatchResizeFailedListener(@NonNull List<File> files) {
         if (isViewAttached) {
-            view.showMessage("Failed to resize " + files.size() + " files!");
+            Context context = Injection.provideGlobalContext();
+            String starMsg = context.getString(R.string.message_failed_to_resize);
+            String endMsg = context.getString(R.string.message_files);
+            view.showMessage(starMsg + files.size() + endMsg);
         }
     }
 }

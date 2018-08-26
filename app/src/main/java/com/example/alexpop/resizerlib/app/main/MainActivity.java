@@ -1,13 +1,14 @@
 package com.example.alexpop.resizerlib.app.main;
 
 import com.example.alexpop.resizerlib.R;
+import com.example.alexpop.resizerlib.app.injection.Injection;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,7 +18,6 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity {
 
     private static final int WRITE_STORAGE_PERMISSION_REQUEST_CODE = 55;
-    private final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,15 +29,15 @@ public class MainActivity extends AppCompatActivity {
         setupPhotoViewFragment();
     }
 
-    private void setupPhotoViewFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content, new MainFragmentView(), MainFragmentView.TAG)
-                .commit();
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        } else {
+            showSnackBarMessage(Injection.provideGlobalContext()
+                    .getString(R.string.message_read_write_storage_permissions_denied));
+        }
     }
 
     @Override
@@ -69,9 +69,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    private void setupPhotoViewFragment() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content, new MainFragmentView(), MainFragmentView.TAG)
+                .commit();
     }
 
     private void requestStoragePermissions() {
@@ -81,6 +82,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void showSnackBarMessage(@NonNull String message) {
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.main_coordinator_layout), message, Snackbar.LENGTH_SHORT);
+        snackbar.show();
+    }
+
+    /**
+     * Delegate Toolbar button functionality to the the MainFragmentView and presenter
+     */
     private void sendCompressPicturesRequest() {
         MainFragmentView fragment = (MainFragmentView) getSupportFragmentManager().findFragmentByTag(MainFragmentView.TAG);
         if (fragment != null) {
