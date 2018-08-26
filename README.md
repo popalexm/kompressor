@@ -10,7 +10,17 @@
             # Returns singleton instance of the library.
             Kompressor kompressor = Kompressor.get(); 
             
-            # Assign a list of images (File objects) that need to either be moved, or resized.
+            # Create KompressorParameters object for passing the files to be processed, using the provided builder
+            
+             KompressorParameters.MainTaskParametersBuilder()
+                .setImageFiles(imageFileList)              // An List<File> object containing the images which need to be processsed
+                .setTaskType(TaskType.TASK_COPY_TO_DIRECTORY) // A TaskType object
+                .setToCopyDestinationDirectory(toCopyDestinationDirectory) // Optional Param , the directory wehere the files will be copied
+                .setCompressionRatio(int compressionRatio) // Optional Param, the compression ratio for files that need to be compressed , values from 0 to 100.
+                .setMaximumResizeWidth(int maximumResizeWidth) // Optional Param, Maximum Height which will be used when resizing the image files
+                .createMainTaskParameters(); // Creates the parameters object
+            
+         
             kompressor.loadResources(List<File> imgFiles); 
             
             # Assign callbacks for either the final image list results (the library returns a list of File objects for both                             succesfully copied/ resized / compresssed images, and the failed one) or single image copy / resize / compression callbacks for each image as it is processed.
