@@ -1,29 +1,55 @@
 ![giphy](https://user-images.githubusercontent.com/3145845/39960197-0d88e4fa-5627-11e8-8c0a-ff8c9ecf289a.gif)
 
 
-                                Kompressor Beta 0.2 
+                                Kompressor Beta 0.4
                               
             Batch image resize / copy / compress / resize & compress Android Java library , currently in beta phase, designed for mass manipulation of an large number of image files.
            
             # Usage
             
-            # Returns singleton instance of the library.
+            # Returns the singleton instance of the library.
             Kompressor kompressor = Kompressor.get(); 
             
-            # Assign a list of images (File objects) that need to either be moved, or resized.
-            kompressor.loadResources(List<File> imgFiles); 
+            # Create KompressorParameters object for passing the files to be processed, using the provided builder class
             
-            # Assign callbacks for either the final image list results (the library returns a list of File objects for both                             succesfully copied/ resized / compresssed images, and the failed one) or single image copy / resize / compression callbacks for each image as it is processed.
-            kompressor.withResizeCallback(this);
-            kompressor.withSingleImageResizeCallback(this);
+            KompressorParameters parameters = KompressorParameters.MainTaskParametersBuilder()
+             /* An List<File> object containing the images which need to be processsed */
+             .setImageFiles(imageFileList)              
+             
+             /* A TaskType object defining the action to be taken upon the image files */
+             .setTaskType(TaskType.TASK_COPY_TO_DIRECTORY) 
+             
+             /* Optional parameter , only used in conjuction with TaskType.COPY_TO_DIRECTORY , the directory where the images files 
+             will be copied */
+             .setToCopyDestinationDirectory(toCopyDestinationDirectory) 
+             
+              /* Optional Param, the maximum compression ratio (must be a compression ratio between 0-100, 
+              expressed as an integer variable) */
+             .setCompressionRatio(int compressionRatio)
+             
+             /* Optional Param, maximum height in pixels which will be used when resizing the image files */
+             .setMaximumResizeWidth(int maximumResizeWidth) 
+             
+             /* Creates the parameters object */
+             .createMainTaskParameters(); 
             
-            # Assign a maximum height resolution (value expressed as an int variable, corresponding to the desired maximum height in pixels of the desired resulted images), or a maximum compression ratio (must be a compression ratio between 0-100, expressed as an int variable).
-            kompressor.withCompressionRatio(90);
-            kompressor.withMaxSize(720;
+            # Start the task by calling the public startTask() method and assigining the previously created KompressorParameters object
+            kompressor.startTask(parameters);
             
-            # Start the task by calling the publi startTask method and assigining a TaskType, there are 4 currently available in the library     
-            kompressor.startTask(TaskType.TASK_RESIZE_AND_COMPRESS_TO_RATIO);
+            # Callbacks from the library 
+            
+            /* Set of callbacks that returns the list of sucessfully resized files, and the list of failed ones
+            kompressor.withBatchResizeCallbacks(EntireBatchResizeCallback uiCallback);
+       
+            /* Set of callbacks that returns the list of sucessfully copied files, and the list of failed ones
+            kompressor.withBatchCopyCallbacks(@NonNull EntireBatchCopyCallback uiCallback) 
+            
+            /* Callbacks for each individual file, called upon once each file is copied to the destination directory */
+            kompressor.withSingleItemCopyCallbacks(@NonNull IndividualItemCopyCallback uiCallback) 
 
+            /* Same as above, but for each individual resize operation */
+            kompressor.withSingleItemResizeCallbacks(@NonNull IndividualItemResizeCallback uiCallback) 
+           
             # Gradle import release 
             Will be relased as a gradle package once it has been fully tested.
                 
