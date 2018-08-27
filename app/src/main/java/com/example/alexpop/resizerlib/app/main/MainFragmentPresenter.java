@@ -8,8 +8,9 @@ import com.example.alexpop.resizerlib.app.useCases.GetAvailableImagesUseCase;
 import com.example.alexpop.resizerlib.app.utils.GlobalConstants;
 import com.example.alexpop.resizerlib.app.utils.Utils;
 import com.example.alexpop.resizerlib.kompressorLib.Kompressor;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchCopySuccessListener;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeListener;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.StartingAssignedTaskListener;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.TaskType;
 import com.example.alexpop.resizerlib.kompressorLib.tasks.KompressorParameters;
 
@@ -25,7 +26,8 @@ import io.reactivex.CompletableObserver;
 import io.reactivex.MaybeObserver;
 import io.reactivex.disposables.Disposable;
 
-public class MainFragmentPresenter implements MainFragmentContract.Presenter, EntireBatchCopyCallback, EntireBatchResizeCallback {
+public class MainFragmentPresenter
+        implements MainFragmentContract.Presenter, EntireBatchCopySuccessListener, EntireBatchResizeListener, StartingAssignedTaskListener {
 
     @NonNull
     private final MainFragmentContract.View view;
@@ -40,6 +42,7 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
         this.kompressor = Kompressor.get();
         this.kompressor.withBatchCopyCallbacks(this);
         this.kompressor.withBatchResizeCallbacks(this);
+        this.kompressor.withStartingAssignedTaskListener(this);
     }
 
     @Override
@@ -117,16 +120,7 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
     }
 
     @Override
-    public void onBatchCopyStartedListener() {
-        if (isViewAttached) {
-            String msg = Injection.provideGlobalContext()
-                    .getString(R.string.message_started_to_copy_file);
-            view.showMessage(msg);
-        }
-    }
-
-    @Override
-    public void onBatchCopySuccessListener(@NonNull List<File> files) {
+    public void onBatchCopySuccess(@NonNull List<File> files) {
         List<Photo> copiedPhotos = new ArrayList<>();
         for (File file : files) {
             String fileSize = Utils.convertToMbKbGb(file.length());
@@ -139,7 +133,7 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
     }
 
     @Override
-    public void onBatchFailedListener(@NonNull List<File> files) {
+    public void onBatchCopyFailed(@NonNull List<File> files) {
         if (isViewAttached) {
             String msg = Injection.provideGlobalContext()
                     .getString(R.string.message_failed_to_copy_file);
@@ -225,15 +219,7 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
     }
 
     @Override
-    public void onBatchResizeStartedListener() {
-        if (isViewAttached) {
-            view.showMessage(Injection.provideGlobalContext()
-                    .getString(R.string.message_starting_to_compress));
-        }
-    }
-
-    @Override
-    public void onBatchResizeSuccessListener(@NonNull List<File> files) {
+    public void onBatchResizeSuccess(@NonNull List<File> files) {
         if (isViewAttached) {
             Context context = Injection.provideGlobalContext();
             String starMsg = context.getString(R.string.message_successfully_compressed);
@@ -244,12 +230,29 @@ public class MainFragmentPresenter implements MainFragmentContract.Presenter, En
     }
 
     @Override
-    public void onBatchResizeFailedListener(@NonNull List<File> files) {
+    public void onBatchResizeFailed(@NonNull List<File> files) {
         if (isViewAttached) {
             Context context = Injection.provideGlobalContext();
             String starMsg = context.getString(R.string.message_failed_to_resize);
             String endMsg = context.getString(R.string.message_files);
             view.showMessage(starMsg + files.size() + endMsg);
+        }
+    }
+
+    @Override
+    public void onBatchCopyTaskStarted() {
+        if (isViewAttached) {
+            String msg = Injection.provideGlobalContext()
+                    .getString(R.string.message_started_to_copy_file);
+            view.showMessage(msg);
+        }
+    }
+
+    @Override
+    public void onBatchResizeTaskStarted() {
+        if (isViewAttached) {
+            view.showMessage(Injection.provideGlobalContext()
+                    .getString(R.string.message_starting_to_compress));
         }
     }
 }

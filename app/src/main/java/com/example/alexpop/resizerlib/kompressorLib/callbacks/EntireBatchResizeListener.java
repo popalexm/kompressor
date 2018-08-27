@@ -5,18 +5,14 @@ import android.support.annotation.NonNull;
 import java.io.File;
 import java.util.List;
 
-public interface EntireBatchResizeCallback {
-
-    /**Called upon when image resize tasks has begun
-     */
-    void onBatchResizeStartedListener();
+public interface EntireBatchResizeListener {
 
     /**Called upon when image resize tasks have been completed, returns a list of successfully resized files
      */
-    void onBatchResizeSuccessListener(@NonNull List<File> files);
+    void onBatchResizeSuccess(@NonNull List<File> files);
 
     /**Called upon when image resize tasks have been completed,
      * returns a list of files that have failed to be resized
      */
-    void onBatchResizeFailedListener(@NonNull List<File> files);
+    void onBatchResizeFailed(@NonNull List<File> files);
 }

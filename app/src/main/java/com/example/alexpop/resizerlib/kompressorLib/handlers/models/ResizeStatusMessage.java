@@ -1,6 +1,6 @@
 package com.example.alexpop.resizerlib.kompressorLib.handlers.models;
 
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeListener;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.ProcessingStatus;
 
 import android.support.annotation.NonNull;
@@ -13,13 +13,13 @@ public final class ResizeStatusMessage {
     @NonNull
     private final ProcessingStatus status;
     @NonNull
-    private final EntireBatchResizeCallback callback;
+    private final EntireBatchResizeListener callback;
     @NonNull
     private final List<File> successfulImages;
     @NonNull
     private final List<File> failedImages;
 
-    private ResizeStatusMessage(@NonNull ProcessingStatus status, @NonNull EntireBatchResizeCallback callback, @NonNull List<File> successfulImages,
+    private ResizeStatusMessage(@NonNull ProcessingStatus status, @NonNull EntireBatchResizeListener callback, @NonNull List<File> successfulImages,
             @NonNull List<File> failedImages) {
         this.status = status;
         this.callback = callback;
@@ -33,7 +33,7 @@ public final class ResizeStatusMessage {
     }
 
     @NonNull
-    public EntireBatchResizeCallback getCallback() {
+    public EntireBatchResizeListener getCallback() {
         return callback;
     }
 
@@ -50,7 +50,7 @@ public final class ResizeStatusMessage {
     public static class ResizeMessageBuilder {
 
         private ProcessingStatus status;
-        private EntireBatchResizeCallback callback;
+        private EntireBatchResizeListener callback;
         private List<File> successfulImages;
         private List<File> failedImages;
 
@@ -59,7 +59,7 @@ public final class ResizeStatusMessage {
             return this;
         }
 
-        public ResizeMessageBuilder setCallback(EntireBatchResizeCallback callback) {
+        public ResizeMessageBuilder setCallback(EntireBatchResizeListener callback) {
             this.callback = callback;
             return this;
         }

@@ -1,7 +1,7 @@
 package com.example.alexpop.resizerlib.kompressorLib.tasks;
 
 import com.example.alexpop.resizerlib.kompressorLib.actions.ImageResizeCompressAction;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemResizeListener;
 import com.example.alexpop.resizerlib.kompressorLib.handlers.MainThreadMessageHandler;
 
 import android.support.annotation.NonNull;
@@ -18,9 +18,9 @@ public class ImageResizeWorkerTask extends BaseWorkerTaskCallable {
     private final int maximumWidth;
     private final int compressionRatio;
     @Nullable
-    private final IndividualItemResizeCallback callback;
+    private final IndividualItemResizeListener callback;
 
-    ImageResizeWorkerTask(@NonNull String path, int maximumWidth, int compressionRatio, @Nullable IndividualItemResizeCallback imageResizeCallback) {
+    ImageResizeWorkerTask(@NonNull String path, int maximumWidth, int compressionRatio, @Nullable IndividualItemResizeListener imageResizeCallback) {
         this.imagePath = path;
         this.compressionRatio = compressionRatio;
         this.maximumWidth = maximumWidth;

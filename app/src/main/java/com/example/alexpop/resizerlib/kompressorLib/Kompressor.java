@@ -1,31 +1,38 @@
 package com.example.alexpop.resizerlib.kompressorLib;
 
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchCopySuccessListener;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeListener;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemCopyListener;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemResizeListener;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.StartingAssignedTaskListener;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.CompressionParameters;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.TaskType;
 import com.example.alexpop.resizerlib.kompressorLib.taskmanager.TaskManager;
 import com.example.alexpop.resizerlib.kompressorLib.tasks.KompressorParameters;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public final class Kompressor {
 
+    @Nullable
     private static Kompressor instance;
-    private final String TAG = Kompressor.class.getSimpleName();
     /**
      * Callbacks for image resize or copy tasks back to the UI / calling thread
      */
-    private EntireBatchResizeCallback entireBatchResizeCallback;
-    private EntireBatchCopyCallback entireBatchCopyCallback;
-    private IndividualItemCopyCallback singleImageCopyCallback;
-    private IndividualItemResizeCallback individualItemResizeCallback;
+    @Nullable
+    private EntireBatchResizeListener entireBatchResizeListener;
+    @Nullable
+    private EntireBatchCopySuccessListener entireBatchCopySuccessListener;
+    @Nullable
+    private IndividualItemCopyListener individualItemCopyListener;
+    @Nullable
+    private IndividualItemResizeListener individualItemResizeListener;
+    @Nullable
+    private StartingAssignedTaskListener startingAssignedTaskListener;
 
     private Kompressor() {
     }
-
     /**
      * Returns main library instance
      */
@@ -40,20 +47,24 @@ public final class Kompressor {
      * Assign callbacks back to the calling thread
      */
 
-    public void withBatchResizeCallbacks(@NonNull EntireBatchResizeCallback uiCallback) {
-        this.entireBatchResizeCallback = uiCallback;
+    public void withBatchResizeCallbacks(@NonNull EntireBatchResizeListener uiCallback) {
+        this.entireBatchResizeListener = uiCallback;
     }
 
-    public void withBatchCopyCallbacks(@NonNull EntireBatchCopyCallback uiCallback) {
-        this.entireBatchCopyCallback = uiCallback;
+    public void withBatchCopyCallbacks(@NonNull EntireBatchCopySuccessListener uiCallback) {
+        this.entireBatchCopySuccessListener = uiCallback;
     }
 
-    public void withSingleItemCopyCallbacks(@NonNull IndividualItemCopyCallback uiCallback) {
-        this.singleImageCopyCallback = uiCallback;
+    public void withSingleItemCopyCallbacks(@NonNull IndividualItemCopyListener uiCallback) {
+        this.individualItemCopyListener = uiCallback;
     }
 
-    public void withSingleItemResizeCallbacks(@NonNull IndividualItemResizeCallback uiCallback) {
-        this.individualItemResizeCallback = uiCallback;
+    public void withSingleItemResizeCallbacks(@NonNull IndividualItemResizeListener uiCallback) {
+        this.individualItemResizeListener = uiCallback;
+    }
+
+    public void withStartingAssignedTaskListener(StartingAssignedTaskListener uiCallback) {
+        this.startingAssignedTaskListener = uiCallback;
     }
 
     /**
@@ -108,12 +119,9 @@ public final class Kompressor {
      * Validates callbacks , starts a resize task for the assigned TaskDetails object
      */
     private void startStartResizeTask(@NonNull KompressorParameters parameters, @NonNull TaskManager taskManager) {
-        if (entireBatchResizeCallback != null) {
-            taskManager.setImageListResizeCallback(entireBatchResizeCallback);
-        }
-        if (individualItemResizeCallback != null) {
-            taskManager.setSingleImageResizeCallback(individualItemResizeCallback);
-        }
+        setTaskManagerResizeListeners(taskManager);
+        setTaskStartingLisneter(taskManager);
+
         taskManager.setTaskParameters(parameters);
         taskManager.executeTask();
     }
@@ -122,13 +130,34 @@ public final class Kompressor {
      * Validates callbacks , starts a resize task for the assigned TaskDetails object
      */
     private void startStartCopyTask(@NonNull KompressorParameters parameters, @NonNull TaskManager taskManager) {
-        if (entireBatchCopyCallback != null) {
-            taskManager.setImageListCopyCallback(entireBatchCopyCallback);
-        }
-        if (singleImageCopyCallback != null) {
-            taskManager.setSingleImageCopyCallback(singleImageCopyCallback);
-        }
+        setTaskManagerCopyListeners(taskManager);
+        setTaskStartingLisneter(taskManager);
+
         taskManager.setTaskParameters(parameters);
         taskManager.executeTask();
+    }
+
+    private void setTaskManagerCopyListeners(@NonNull TaskManager taskManager) {
+        if (entireBatchCopySuccessListener != null) {
+            taskManager.setImageListCopyCallback(entireBatchCopySuccessListener);
+        }
+        if (individualItemCopyListener != null) {
+            taskManager.setSingleImageCopyCallback(individualItemCopyListener);
+        }
+    }
+
+    private void setTaskManagerResizeListeners(@NonNull TaskManager taskManager) {
+        if (entireBatchResizeListener != null) {
+            taskManager.setImageListResizeCallback(entireBatchResizeListener);
+        }
+        if (individualItemResizeListener != null) {
+            taskManager.setSingleImageResizeCallback(individualItemResizeListener);
+        }
+    }
+
+    private void setTaskStartingLisneter(@NonNull TaskManager taskManager) {
+        if (startingAssignedTaskListener != null) {
+            taskManager.setStartingAssignedTaskListener(startingAssignedTaskListener);
+        }
     }
 }

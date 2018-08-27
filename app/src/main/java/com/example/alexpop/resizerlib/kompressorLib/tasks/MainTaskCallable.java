@@ -1,9 +1,10 @@
 package com.example.alexpop.resizerlib.kompressorLib.tasks;
 
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemCopyCallback;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemResizeCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchCopySuccessListener;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.EntireBatchResizeListener;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemCopyListener;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemResizeListener;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.StartingAssignedTaskListener;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.ProcessingStatus;
 import com.example.alexpop.resizerlib.kompressorLib.definitions.TaskType;
 import com.example.alexpop.resizerlib.kompressorLib.handlers.MainThreadMessageHandler;
@@ -48,33 +49,39 @@ public class MainTaskCallable implements Callable<List<File>> {
      * Callbacks for the operations success / failure notification
      */
     @Nullable
-    private EntireBatchResizeCallback entireBatchResizeCallback;
+    private EntireBatchResizeListener entireBatchResizeListener;
     @Nullable
-    private EntireBatchCopyCallback entireBatchCopyCallback;
+    private EntireBatchCopySuccessListener entireBatchCopySuccessListener;
     @Nullable
-    private IndividualItemCopyCallback individualItemCopyCallback;
+    private IndividualItemCopyListener individualItemCopyListener;
     @Nullable
-    private IndividualItemResizeCallback individualItemResizeCallback;
+    private IndividualItemResizeListener individualItemResizeListener;
+    @Nullable
+    private StartingAssignedTaskListener startingAssignedTaskListener;
 
     public MainTaskCallable(@NonNull KompressorParameters parameters) {
         this.parameters = parameters;
         mainThreadMessageHandler = MainThreadMessageHandler.getInstance();
     }
 
-    public void setEntireBatchResizeCallback(@NonNull EntireBatchResizeCallback entireBatchResizeCallback) {
-        this.entireBatchResizeCallback = entireBatchResizeCallback;
+    public void setEntireBatchResizeListener(@NonNull EntireBatchResizeListener entireBatchResizeListener) {
+        this.entireBatchResizeListener = entireBatchResizeListener;
     }
 
-    public void setEntireBatchCopyCallback(@NonNull EntireBatchCopyCallback entireBatchCopyCallback) {
-        this.entireBatchCopyCallback = entireBatchCopyCallback;
+    public void setEntireBatchCopySuccessListener(@NonNull EntireBatchCopySuccessListener entireBatchCopySuccessListener) {
+        this.entireBatchCopySuccessListener = entireBatchCopySuccessListener;
     }
 
-    public void setIndividualItemCopyCallback(@NonNull IndividualItemCopyCallback individualItemCopyCallback) {
-        this.individualItemCopyCallback = individualItemCopyCallback;
+    public void setIndividualItemCopyListener(@NonNull IndividualItemCopyListener individualItemCopyListener) {
+        this.individualItemCopyListener = individualItemCopyListener;
     }
 
-    public void setIndividualItemResizeCallback(@NonNull IndividualItemResizeCallback individualItemResizeCallback) {
-        this.individualItemResizeCallback = individualItemResizeCallback;
+    public void setIndividualItemResizeListener(@NonNull IndividualItemResizeListener individualItemResizeListener) {
+        this.individualItemResizeListener = individualItemResizeListener;
+    }
+
+    public void setStartingAssignedTaskListener(@NonNull StartingAssignedTaskListener startingAssignedTaskListener) {
+        this.startingAssignedTaskListener = startingAssignedTaskListener;
     }
 
     @Override
@@ -102,10 +109,9 @@ public class MainTaskCallable implements Callable<List<File>> {
     }
 
     private void executeImageCopyTaskQueue() {
-        CopyStatusMessage copyStatusMessage = new CopyStatusMessage.CopyMessageBuilder().setCallback(entireBatchCopyCallback)
-                .setStatus(ProcessingStatus.PROCESSING_STARTED)
-                .createCopyMessage();
-        mainThreadMessageHandler.postBatchCopyMessage(copyStatusMessage);
+        if (startingAssignedTaskListener != null) {
+            mainThreadMessageHandler.postBatchCopyStarted(startingAssignedTaskListener);
+        }
 
         List<File> imageFiles = parameters.getImageFiles();
         File toCopyDestinationDirectory = parameters.getToCopyDestinationDirectory();
@@ -114,7 +120,7 @@ public class MainTaskCallable implements Callable<List<File>> {
             activelyRunningTasks = new ArrayList<>();
 
             for (int i = 0; i < imageFiles.size(); i++) {
-                ImageCopyWorkerTask imageCopyWorkerTask = new ImageCopyWorkerTask(imageFiles.get(i), toCopyDestinationDirectory, individualItemCopyCallback);
+                ImageCopyWorkerTask imageCopyWorkerTask = new ImageCopyWorkerTask(imageFiles.get(i), toCopyDestinationDirectory, individualItemCopyListener);
                 activelyRunningTasks.add(imageCopyWorkerTask);
             }
             awaitResults();
@@ -122,11 +128,9 @@ public class MainTaskCallable implements Callable<List<File>> {
     }
 
     private void executeImageResizeTaskQueue() {
-        ResizeStatusMessage resizeStatusMessage = new ResizeStatusMessage.ResizeMessageBuilder().setCallback(entireBatchResizeCallback)
-                .setStatus(ProcessingStatus.PROCESSING_STARTED)
-                .createResizeMessage();
-        mainThreadMessageHandler.postBatchResizeMessage(resizeStatusMessage);
-
+        if (startingAssignedTaskListener != null) {
+            mainThreadMessageHandler.postBatchResizeStarted(startingAssignedTaskListener);
+        }
         List<File> imagesFiles = parameters.getImageFiles();
         int maxResizeWidth = parameters.getMaximumResizeWidth();
         int compressionRatio = parameters.getCompressionRatio();
@@ -136,7 +140,7 @@ public class MainTaskCallable implements Callable<List<File>> {
                 String imgPath = imagesFiles.get(i)
                         .getPath();
                 ImageResizeWorkerTask imageResizeWorkerTask = new ImageResizeWorkerTask(imgPath, maxResizeWidth, compressionRatio,
-                        individualItemResizeCallback);
+                        individualItemResizeListener);
                 activelyRunningTasks.add(imageResizeWorkerTask);
             }
             awaitResults();
@@ -182,7 +186,7 @@ public class MainTaskCallable implements Callable<List<File>> {
         MainThreadMessageHandler mainThreadMessageHandler = MainThreadMessageHandler.getInstance();
         if (successfulImages.size() > 0) {
             ResizeStatusMessage resizeStatusMessage = new ResizeStatusMessage.ResizeMessageBuilder().setStatus(ProcessingStatus.PROCESSING_SUCCESS)
-                    .setCallback(entireBatchResizeCallback)
+                    .setCallback(entireBatchResizeListener)
                     .setSuccessfulImages(successfulImages)
                     .createResizeMessage();
 
@@ -190,7 +194,7 @@ public class MainTaskCallable implements Callable<List<File>> {
         }
         if (failedImages.size() > 0) {
             ResizeStatusMessage resizeStatusMessage = new ResizeStatusMessage.ResizeMessageBuilder().setStatus(ProcessingStatus.PROCESSING_FAILED)
-                    .setCallback(entireBatchResizeCallback)
+                    .setCallback(entireBatchResizeListener)
                     .setFailedImages(failedImages)
                     .createResizeMessage();
 
@@ -202,7 +206,7 @@ public class MainTaskCallable implements Callable<List<File>> {
         MainThreadMessageHandler mainThreadMessageHandler = MainThreadMessageHandler.getInstance();
         if (successfulImages.size() > 0) {
             CopyStatusMessage copyStatusMessage = new CopyStatusMessage.CopyMessageBuilder().setStatus(ProcessingStatus.PROCESSING_SUCCESS)
-                    .setCallback(entireBatchCopyCallback)
+                    .setCallback(entireBatchCopySuccessListener)
                     .setSuccessfulImages(successfulImages)
                     .createCopyMessage();
 
@@ -210,7 +214,7 @@ public class MainTaskCallable implements Callable<List<File>> {
         }
         if (failedImages.size() > 0) {
             CopyStatusMessage copyStatusMessage = new CopyStatusMessage.CopyMessageBuilder().setStatus(ProcessingStatus.PROCESSING_FAILED)
-                    .setCallback(entireBatchCopyCallback)
+                    .setCallback(entireBatchCopySuccessListener)
                     .setFailedImages(failedImages)
                     .createCopyMessage();
 

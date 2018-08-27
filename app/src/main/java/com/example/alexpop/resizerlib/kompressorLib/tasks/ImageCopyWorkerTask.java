@@ -1,7 +1,7 @@
 package com.example.alexpop.resizerlib.kompressorLib.tasks;
 
 import com.example.alexpop.resizerlib.kompressorLib.actions.ImageCopyAction;
-import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemCopyCallback;
+import com.example.alexpop.resizerlib.kompressorLib.callbacks.IndividualItemCopyListener;
 import com.example.alexpop.resizerlib.kompressorLib.handlers.MainThreadMessageHandler;
 
 import android.support.annotation.NonNull;
@@ -19,9 +19,9 @@ public class ImageCopyWorkerTask extends BaseWorkerTaskCallable {
     @NonNull
     private final File toCopyFile;
     @Nullable
-    private final IndividualItemCopyCallback copyStatusCallback;
+    private final IndividualItemCopyListener copyStatusCallback;
 
-    ImageCopyWorkerTask(@NonNull File copyToDirectory, @NonNull File toCopyFile, @Nullable IndividualItemCopyCallback copyStatusCallback) {
+    ImageCopyWorkerTask(@NonNull File copyToDirectory, @NonNull File toCopyFile, @Nullable IndividualItemCopyListener copyStatusCallback) {
         this.copyToDirectory = copyToDirectory;
         this.toCopyFile = toCopyFile;
         this.copyStatusCallback = copyStatusCallback;
