@@ -33,7 +33,7 @@ public class GetAvailableImagesUseCase implements BaseUseCaseMaybe {
                 List<Photo> copiedPhotos = new ArrayList<>();
                 for (File photoFile : files) {
                     if (Utils.isFilePictureFormat(photoFile)) {
-                        Photo photo = new Photo(photoFile, Utils.convertToMbKbGb(photoFile.length()));
+                        Photo photo = new Photo(photoFile, Utils.formatDiskSizeToValue(photoFile.length()));
                         copiedPhotos.add(photo);
                     }
                 }

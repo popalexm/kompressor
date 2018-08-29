@@ -19,4 +19,8 @@
     <string name="message_deleted_all_files">All the imported photos have been deleted !</string>
     <string name="message_read_write_storage_permissions_denied">Please enable permissions to Read/Write from the external storage, or else the application will not work !</string>
 
+    <string name="prefix_kb"> Kb</string>
+    <string name="prefix_mb"> Mb</string>
+    <string name="prefix_gb"> GB</string>
+
 </resources>

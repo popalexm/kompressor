@@ -123,7 +123,7 @@ public class MainFragmentPresenter
     public void onBatchCopySuccess(@NonNull List<File> files) {
         List<Photo> copiedPhotos = new ArrayList<>();
         for (File file : files) {
-            String fileSize = Utils.convertToMbKbGb(file.length());
+            String fileSize = Utils.formatDiskSizeToValue(file.length());
             Photo photo = new Photo(file, fileSize);
             copiedPhotos.add(photo);
         }
@@ -135,11 +135,9 @@ public class MainFragmentPresenter
     @Override
     public void onBatchCopyFailed(@NonNull List<File> files) {
         if (isViewAttached) {
-            String msg = Injection.provideGlobalContext()
-                    .getString(R.string.message_failed_to_copy_file);
-            String endMsg = Injection.provideGlobalContext()
-                    .getString(R.string.message_files);
-            view.showMessage(msg + files.size() + endMsg);
+            Context ctx = Injection.provideGlobalContext();
+            view.showMessage(ctx.getString(R.string.format_success_message, ctx.getString(R.string.message_failed_to_copy_file), files.size(),
+                    ctx.getString(R.string.message_files)));
         }
     }
 
@@ -221,10 +219,9 @@ public class MainFragmentPresenter
     @Override
     public void onBatchResizeSuccess(@NonNull List<File> files) {
         if (isViewAttached) {
-            Context context = Injection.provideGlobalContext();
-            String starMsg = context.getString(R.string.message_successfully_compressed);
-            String endMsg = context.getString(R.string.message_files);
-            view.showMessage(starMsg + files.size() + endMsg);
+            Context ctx = Injection.provideGlobalContext();
+            view.showMessage(ctx.getString(R.string.format_success_message, ctx.getString(R.string.message_successfully_compressed), files.size(),
+                    ctx.getString(R.string.message_files)));
         }
         getAvailablePhotosInInternalDirectory();
     }
@@ -232,19 +229,17 @@ public class MainFragmentPresenter
     @Override
     public void onBatchResizeFailed(@NonNull List<File> files) {
         if (isViewAttached) {
-            Context context = Injection.provideGlobalContext();
-            String starMsg = context.getString(R.string.message_failed_to_resize);
-            String endMsg = context.getString(R.string.message_files);
-            view.showMessage(starMsg + files.size() + endMsg);
+            Context ctx = Injection.provideGlobalContext();
+            view.showMessage(ctx.getString(R.string.format_success_message, ctx.getString(R.string.message_failed_to_resize), files.size(),
+                    ctx.getString(R.string.message_files)));
         }
     }
 
     @Override
     public void onBatchCopyTaskStarted() {
         if (isViewAttached) {
-            String msg = Injection.provideGlobalContext()
-                    .getString(R.string.message_started_to_copy_file);
-            view.showMessage(msg);
+            view.showMessage(Injection.provideGlobalContext()
+                    .getString(R.string.message_started_to_copy_file));
         }
     }
 

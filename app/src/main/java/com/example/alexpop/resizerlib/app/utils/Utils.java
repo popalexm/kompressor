@@ -1,5 +1,8 @@
 package com.example.alexpop.resizerlib.app.utils;
 
+import com.example.alexpop.resizerlib.R;
+import com.example.alexpop.resizerlib.app.injection.Injection;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
@@ -13,6 +16,8 @@ public final class Utils {
 
     private static final String JPG = ".jpg";
     private static final String JPEG = ".jpeg";
+    private static final String ANDROID_DATA_FOLDER = "/Android/data/";
+    private static final String FILES_SUBFOLDER = "/Files";
 
     private Utils() {
     }
@@ -28,26 +33,26 @@ public final class Utils {
      */
     @NonNull
     public static File getCopyToMediaDirectory(@NonNull Context context) {
-        return new File(Environment.getExternalStorageDirectory() + "/Android/data/" + context.getPackageName() + "/Files");
+        return new File(Environment.getExternalStorageDirectory() + Utils.ANDROID_DATA_FOLDER + context.getPackageName() + Utils.FILES_SUBFOLDER);
     }
 
     @NonNull
-    public static String convertToMbKbGb(long size) {
-        DecimalFormat df = new DecimalFormat("0.00");
-        float sizeKb = 1024.0f;
-        float sizeMo = sizeKb * sizeKb;
-        float sizeGo = sizeMo * sizeKb;
-        float sizeTerra = sizeGo * sizeKb;
-
+    public static String formatDiskSizeToValue(long size) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        final float sizeKb = 1024.0f;
+        final float sizeMo = sizeKb * sizeKb;
+        final float sizeGo = sizeMo * sizeKb;
+        final float sizeTerra = sizeGo * sizeKb;
+        Context context = Injection.provideGlobalContext();
+        String formattedSize = "";
         if (size < sizeMo) {
-            return df.format(size / sizeKb) + " Kb";
+            formattedSize = decimalFormat.format(size / sizeKb) + " " + context.getString(R.string.prefix_kb);
         } else if (size < sizeGo) {
-            return df.format(size / sizeMo) + " Mb";
+            formattedSize = decimalFormat.format(size / sizeMo) + " " + context.getString(R.string.prefix_mb);
         } else if (size < sizeTerra) {
-            return df.format(size / sizeGo) + " Gb";
+            formattedSize = decimalFormat.format(size / sizeGo) + " " + context.getString(R.string.prefix_gb);
         }
-
-        return "";
+        return formattedSize;
     }
 
     public static boolean isFilePictureFormat(@NonNull File file) {
